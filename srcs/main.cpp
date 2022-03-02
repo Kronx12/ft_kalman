@@ -18,6 +18,18 @@ int main(int ac, char **av) {
     struct sockaddr_in server_address;
     int buff_len = 512;
     char buffer[buff_len];
+    int receive_length;
+
+
+    Matrix *matrix = new Matrix(3, 3);
+	Matrix *matrix1 = new Matrix(3, 3);
+    std::cout << matrix->get(1, 1) << std::endl;
+    matrix->set(2, 2, 17);
+	matrix1->set(2, 2, 17);
+
+	matrix1->print();
+	matrix->add(*matrix1);
+	matrix->print();
 
     if (ac != 2)
         put_error("Usage: ./ft_kalman <PORT>");

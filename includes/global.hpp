@@ -24,6 +24,7 @@
 #include <iostream>
 
 #include "Message.hpp"
+#include "Matrix.hpp"
 
 void put_error(std::string error);
 void put_info(const char *format, ...);

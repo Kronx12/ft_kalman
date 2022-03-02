@@ -13,16 +13,41 @@
 #ifndef MATRIX_HPP
 #define MATRIX_HPP
 
+#include <stdio.h>
+#include <iostream>
+#include <array>
+
 class Matrix {
     private:
-        size_t size;
+        unsigned char x_size;
+        unsigned char y_size;
+        double* data;
+
 
     public:
-        Matrix();
+//        Matrix();
+        Matrix(int x, int y);
         ~Matrix();
 
-        Matrix const &add(Matrix &);
-        Matrix const &dot(Matrix &);
+        // Utilities
+        Matrix const &clone(Matrix const &) const;
+
+        bool is_square() const;
+        bool is_identity() const;
+
+        double get(int x, int y) const;
+        void set(int x, int y, double value);
+
+        unsigned char getX() const;
+        unsigned char getY() const;
+
+        void print() const;
+
+        // Operators
+        void add(Matrix &);
+        Matrix *dot(Matrix &);
+
+
 };
 
 #endif 

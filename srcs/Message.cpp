@@ -32,20 +32,21 @@ void Message::parseSpeed(char *raw) {
 void Message::parseTruePosition(char *raw) {
     // Parse true position
     // double x, y, z;
-    
-    std::string str(raw);
-    // "\\[[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}\\]TRUE POSITION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)"
-    std::cout << "RAW=[" << raw << "]";
-
-    std::regex const term_pattern { "\\[[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}\\]TRUE POSITION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)" };
-    std::smatch res;
-
-    std::string::const_iterator start(str.cbegin());
-    while (std::regex_search(start, str.cend(), res, term_pattern)) {
-        std::cout << res[0] << std::endl;
-        std::cout << res[1] << std::endl;
-        std::cout << res[2] << std::endl;
-    }
+//
+//    std::string str(raw);
+//    // "\\[[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}\\]TRUE POSITION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)"
+//    std::cout << "RAW=[" << raw << "]";
+//
+//    std::regex const term_pattern { "\\[[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}\\]TRUE POSITION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)" };
+//    std::smatch res;
+//
+//    std::string::const_iterator start(str.cbegin());
+//    while (std::regex_search(start, str.cend(), res, term_pattern)) {
+//        std::cout << res[0] << std::endl;
+//        std::cout << res[1] << std::endl;
+//        std::cout << res[2] << std::endl;
+//    }
+    (void)raw;
     // _true_position = Vector3D(x, y, z);
 }
 
