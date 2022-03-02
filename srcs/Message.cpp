@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Message.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
+/*   By: thallard <thallard@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 20:11:01 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/02 05:22:47 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/02 14:43:115 by thallard         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,22 @@ void Message::parseSpeed(char *raw) {
 
 void Message::parseTruePosition(char *raw) {
     // Parse true position
-    double x, y, z;
+    // double x, y, z;
+    
+    std::string str(raw);
+    // "\\[[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}\\]TRUE POSITION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)"
+    std::cout << "RAW=[" << raw << "]";
 
-    sscanf(raw, "[00:00:00.000]TRUE POSITION\n%lf\n%lf\n%lf", &x, &y, &z);
-    _true_position = Vector3D(x, y, z);
+    std::regex const term_pattern { "\\[[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}\\]TRUE POSITION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)" };
+    std::smatch res;
+
+    std::string::const_iterator start(str.cbegin());
+    while (std::regex_search(start, str.cend(), res, term_pattern)) {
+        std::cout << res[0] << std::endl;
+        std::cout << res[1] << std::endl;
+        std::cout << res[2] << std::endl;
+    }
+    // _true_position = Vector3D(x, y, z);
 }
 
 void Message::parseAcceleration(char *raw) {

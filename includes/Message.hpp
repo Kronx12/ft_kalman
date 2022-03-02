@@ -6,15 +6,17 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 20:11:12 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/02 05:25:56 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/02 05:42:29 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MESSAGE_HPP
 #define MESSAGE_HPP
 
-#include "Vector3D.hpp"
 #include <iostream>
+#include <regex>
+
+#include "Vector3D.hpp"
 
 class Message {
     public:

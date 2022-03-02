@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 18:36:03 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/02 05:26:58 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/02 06:18:57 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ int main(int ac, char **av) {
     int port;
     int sockfd;
     struct sockaddr_in server_address;
+    int buff_len = 512;
+    char buffer[buff_len];
 
     if (ac != 2)
         put_error("Usage: ./ft_kalman <PORT>");
@@ -43,44 +45,54 @@ int main(int ac, char **av) {
     sendto(sockfd, handshake, strlen(handshake), 0, (const sockaddr *)NULL, sizeof(server_address));
     std::cout << "End send" << std::endl;
 
-    
+    // Skip Raw Trajectory Generation. . .
+    bzero(buffer, buff_len);
+    receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
+    // Sending Info. . .
+    bzero(buffer, buff_len);
+    receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
+
     while (1) {
-        int buff_len = 512;
-        char buffer[buff_len];
         Message message = Message();
         int receive_length;
 
         std::cout << "MSG_START:" << std::endl;
         bzero(buffer, buff_len);
         receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
+        std::cout << "Raw " << buffer << std::endl;
         
         std::cout << "MSG_SPEED:" << std::endl;
         bzero(buffer, buff_len);
         receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
         
-        message.parseSpeed(buffer);
+        std::cout << "Raw " << buffer << std::endl;
+        // message.parseSpeed(buffer);
         
         std::cout << "MSG_TRUEPOS:" << std::endl;
         bzero(buffer, buff_len);
         receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
         
+        std::cout << "Raw " << buffer << std::endl;
         message.parseTruePosition(buffer);
         
         std::cout << "MSG_ACCEL:" << std::endl;
         bzero(buffer, buff_len);
         receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
-        message.parseAcceleration(buffer);
+        
+        // std::cout << "Raw " << buffer << std::endl;
+        // message.parseAcceleration(buffer);
 
 
         std::cout << "MSG_DIREC:" << std::endl;
         bzero(buffer, buff_len);
         receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
-        message.parseDirection(buffer);
+        
+        // std::cout << "Raw " << buffer << std::endl;
+        // message.parseDirection(buffer);
         
         std::cout << "MSG_END:" << std::endl;
         bzero(buffer, buff_len);
         receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
-
 
         message.debug();
     }
