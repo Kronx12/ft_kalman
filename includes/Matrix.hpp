@@ -10,8 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MATRIX_HPP
-#define MATRIX_HPP
+#pragma once
 
 #include <stdio.h>
 #include <iostream>
@@ -23,9 +22,7 @@ class Matrix {
         unsigned char y_size;
         double* data;
 
-
     public:
-//        Matrix();
         Matrix(int x, int y);
         ~Matrix();
 
@@ -43,11 +40,9 @@ class Matrix {
 
         void print() const;
 
-        // Operators
-        void add(Matrix &);
-        Matrix *dot(Matrix &);
-
-
+        // Operators and functions
+        Matrix &add(Matrix &);
+        Matrix &dot(Matrix &);
+		Matrix &transpose();
 };
 
-#endif 

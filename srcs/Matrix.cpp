@@ -43,21 +43,42 @@ void Matrix::print() const {
     }
 }
 
-// Add matrix value to current object
-void Matrix::add(Matrix &matrix) {
-    // Check size
-    if (matrix.getY() == this->y_size && matrix.getX() == this->x_size)
-        return ;
+// Add matrix with current and return a new matrix
+Matrix &Matrix::add(Matrix &matrix) {
+//    if (matrix.getY() != this->y_size && matrix.getX() != this->x_size)
+//        return
 
-    for (int y = 0; y < this->y_size; y++) {
-		for (int x = 0; x < this->x_size; x++) {
-			std::cout << this->get(x, y) + matrix.get(x, y) << std::endl;
-			this->set(x, y, this->get(x, y) + matrix.get(x, y));
-		}
-	}
+	Matrix *result = new Matrix(this->x_size, this->y_size);
+
+    for (int y = 0; y < this->y_size; y++)
+		for (int x = 0; x < this->x_size; x++)
+			result->set(x, y, this->get(x, y) + matrix.get(x, y));
+	return *result;
 }
 
+// Multiply matrix with current and return a new matrix
+Matrix &Matrix::dot(Matrix &matrix) {
+//	if (matrix.getY() != this->y_size && matrix.getX() != this->x_size)
+//		return ;
 
+	Matrix *result = new Matrix(this->x_size, this->y_size);
+
+	for (int y = 0; y < this->y_size; y++)
+		for (int x = 0; x < this->x_size; x++)
+			result->set(x, y, this->get(x, y) * matrix.get(x, y));
+	return *result;
+}
+
+// Transpose current matrix and return a new reference
+Matrix &Matrix::transpose() {
+	Matrix *result = new Matrix(this->y_size, this->x_size);
+
+	for (int y = 0; y < this->y_size; y++)
+		for (int x = 0; x < this->x_size; x++) {
+			result->set(x, y, this->get(y, x));
+		}
+	return *result;
+}
 
 
 
