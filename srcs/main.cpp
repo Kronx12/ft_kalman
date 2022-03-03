@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 18:36:03 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/02 06:18:57 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/02 21:07:31 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,15 +21,15 @@ int main(int ac, char **av) {
     int receive_length;
 
 
-    Matrix *matrix = new Matrix(3, 3);
-	Matrix *matrix1 = new Matrix(3, 3);
-    std::cout << matrix->get(1, 1) << std::endl;
-    matrix->set(2, 2, 17);
-	matrix1->set(2, 2, 17);
+    // Matrix *matrix = new Matrix(3, 3);
+	// Matrix *matrix1 = new Matrix(3, 3);
+    // std::cout << matrix->get(1, 1) << std::endl;
+    // matrix->set(2, 2, 17);
+	// matrix1->set(2, 2, 17);
 
-	matrix1->print();
-	matrix->add(*matrix1);
-	matrix->print();
+	// matrix1->print();
+	// matrix->add(*matrix1);
+	// matrix->print();
 
     if (ac != 2)
         put_error("Usage: ./ft_kalman <PORT>");
@@ -52,10 +52,9 @@ int main(int ac, char **av) {
     if (connect(sockfd, (struct sockaddr *)&server_address, sizeof(server_address)) < 0)
         put_error("Network connection error !");
     
-    std::cout << "Try send" << std::endl;
     char handshake[] = "READY";
     sendto(sockfd, handshake, strlen(handshake), 0, (const sockaddr *)NULL, sizeof(server_address));
-    std::cout << "End send" << std::endl;
+    std::cout << "READY SENT !" << std::endl;
 
     // Skip Raw Trajectory Generation. . .
     bzero(buffer, buff_len);
@@ -68,41 +67,34 @@ int main(int ac, char **av) {
         Message message = Message();
         int receive_length;
 
-        std::cout << "MSG_START:" << std::endl;
-        bzero(buffer, buff_len);
-        receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
-        std::cout << "Raw " << buffer << std::endl;
-        
-        std::cout << "MSG_SPEED:" << std::endl;
+        std::cout << ">>> START <<<" << std::endl;
         bzero(buffer, buff_len);
         receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
         
-        std::cout << "Raw " << buffer << std::endl;
-        // message.parseSpeed(buffer);
-        
-        std::cout << "MSG_TRUEPOS:" << std::endl;
+        std::cout << ">>> TRUE POSITION <<<" << std::endl;
         bzero(buffer, buff_len);
         receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
-        
-        std::cout << "Raw " << buffer << std::endl;
         message.parseTruePosition(buffer);
         
-        std::cout << "MSG_ACCEL:" << std::endl;
+        std::cout << ">>> SPEED <<<" << std::endl;
         bzero(buffer, buff_len);
         receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
+        message.parseSpeed(buffer);
+        std::cout << buffer << std::endl;
         
-        // std::cout << "Raw " << buffer << std::endl;
-        // message.parseAcceleration(buffer);
-
-
-        std::cout << "MSG_DIREC:" << std::endl;
+        std::cout << ">>> ACCELERATION <<<" << std::endl;
         bzero(buffer, buff_len);
         receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
+        message.parseAcceleration(buffer);
+        std::cout << buffer << std::endl;
+
+        std::cout << ">>> DIRECTION <<<" << std::endl;
+        bzero(buffer, buff_len);
+        receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
+        message.parseDirection(buffer);
+        std::cout << buffer << std::endl;
         
-        // std::cout << "Raw " << buffer << std::endl;
-        // message.parseDirection(buffer);
-        
-        std::cout << "MSG_END:" << std::endl;
+        std::cout << ">>> END <<<" << std::endl;
         bzero(buffer, buff_len);
         receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
 

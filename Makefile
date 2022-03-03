@@ -12,7 +12,7 @@ FSANITIZE=-fsanitize=address
 FLAGS=-Wall -Wextra -Werror -g $(FSANITIZE) -I$(INCS_DIR)
 
 %.o:%.cpp
-	$(CC) $(FLAGS) -c $< -o $@
+	$(CC) $(FLAGS) -c $< -o $@ -fsanitize=address
 
 all: $(NAME)
 

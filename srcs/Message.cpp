@@ -24,59 +24,55 @@ void Message::setTruePosition(Vector3D vector) { _true_position = vector; }
 void Message::setAcceleration(Vector3D vector) { _acceleration = vector; }
 void Message::setDirection(Vector3D vector) { _direction = vector; }
 
-void Message::parseSpeed(char *raw) {
+void Message::parseSpeed(std::string str) {
     // Parse speed
-    sscanf(raw, "[00:00:00.000]SPEED\n%lf", &_speed);
+    std::smatch res;
+    std::regex const term_pattern { "\\[([0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3})\\]SPEED\\s(-?[0-9]+\\.[0-9]+)" };
+    std::string::const_iterator start(str.cbegin());
+    std::regex_search(start, str.cend(), res, term_pattern);
+    _speed_timestamp = Timestamp(res[1]);
+    _speed = std::stod(res[2]);
 }
 
-void Message::parseTruePosition(char *raw) {
+void Message::parseTruePosition(std::string str) {
     // Parse true position
-    // double x, y, z;
-//
-//    std::string str(raw);
-//    // "\\[[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}\\]TRUE POSITION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)"
-//    std::cout << "RAW=[" << raw << "]";
-//
-//    std::regex const term_pattern { "\\[[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}\\]TRUE POSITION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)" };
-//    std::smatch res;
-//
-//    std::string::const_iterator start(str.cbegin());
-//    while (std::regex_search(start, str.cend(), res, term_pattern)) {
-//        std::cout << res[0] << std::endl;
-//        std::cout << res[1] << std::endl;
-//        std::cout << res[2] << std::endl;
-//    }
-    (void)raw;
-    // _true_position = Vector3D(x, y, z);
+    std::smatch res;
+    std::regex const term_pattern { "\\[([0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3})\\]TRUE POSITION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)" };
+    std::string::const_iterator start(str.cbegin());
+    std::regex_search(start, str.cend(), res, term_pattern);
+    _true_position_timestamp = Timestamp(res[1]);
+    _true_position = Vector3D(std::stod(res[2]), std::stod(res[3]), std::stod(res[4]));
 }
 
-void Message::parseAcceleration(char *raw) {
+void Message::parseAcceleration(std::string str) {
     // Parse true position
-    double x, y, z;
-
-    sscanf(raw, "[00:00:00.000]ACCELERATION\n%lf\n%lf\n%lf", &x, &y, &z);
-    _true_position = Vector3D(x, y, z);
+    std::smatch res;
+    std::regex const term_pattern { "\\[([0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3})\\]ACCELERATION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)" };
+    std::string::const_iterator start(str.cbegin());
+    std::regex_search(start, str.cend(), res, term_pattern);
+    _acceleration_timestamp = Timestamp(res[1]);
+    _acceleration = Vector3D(std::stod(res[2]), std::stod(res[3]), std::stod(res[4]));
 }
 
-void Message::parseDirection(char *raw) {
+void Message::parseDirection(std::string str) {
     // Parse true position
-    double x, y, z;
-
-    sscanf(raw, "[00:00:00.000]DIRECTION\n%lf\n%lf\n%lf", &x, &y, &z);
-    _true_position = Vector3D(x, y, z);
+    std::smatch res;
+    std::regex const term_pattern { "\\[([0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3})\\]DIRECTION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)" };
+    std::string::const_iterator start(str.cbegin());
+    std::regex_search(start, str.cend(), res, term_pattern);
+    _direction_timestamp = Timestamp(res[1]);
+    _direction = Vector3D(std::stod(res[2]), std::stod(res[3]), std::stod(res[4]));
 }
 
 void Message::debug() {
     std::cout << "=== Message Debug ===" << std::endl;
     std::cout << "Speed = " << _speed << std::endl;
-    std::cout << "True Position = " << std::endl;
+    std::cout << "True Position = ";
     _true_position.debug();
-    std::cout << "Acceleration = " << std::endl;
+    std::cout << "Acceleration = ";
     _acceleration.debug();
-    std::cout << "DIRECTION = " << std::endl;
+    std::cout << "Directory = ";
     _direction.debug();
 }
 
-Message::~Message() {
-    
-}
+Message::~Message() {}
