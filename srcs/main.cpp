@@ -20,8 +20,6 @@ int main(int ac, char **av) {
     char buffer[buff_len];
     int receive_length;
 
-
-<<<<<<< HEAD
     Matrix *matrix = new Matrix(3, 3);
 	Matrix *matrix1 = new Matrix(3, 3);
     std::cout << matrix->get(1, 1) << std::endl;
@@ -34,17 +32,6 @@ int main(int ac, char **av) {
 	matrix->print();
 	matrix->transpose().print();
 //	matrix->print();
-=======
-    // Matrix *matrix = new Matrix(3, 3);
-	// Matrix *matrix1 = new Matrix(3, 3);
-    // std::cout << matrix->get(1, 1) << std::endl;
-    // matrix->set(2, 2, 17);
-	// matrix1->set(2, 2, 17);
-
-	// matrix1->print();
-	// matrix->add(*matrix1);
-	// matrix->print();
->>>>>>> c6ea5ba3693412d35f90899f9ce3cb09b46e5072
 
     if (ac != 2)
         put_error("Usage: ./ft_kalman <PORT>");
