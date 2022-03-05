@@ -44,5 +44,7 @@ class Matrix {
         Matrix &add(Matrix &);
         Matrix &dot(Matrix &);
 		Matrix &transpose();
+
+		Matrix operator+(Matrix &left, const Matrix &right);
 };
 

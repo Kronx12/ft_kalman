@@ -80,7 +80,15 @@ Matrix &Matrix::transpose() {
 	return *result;
 }
 
+// Overload operator add
+Matrix Matrix::operator+(Matrix &left, const Matrix &right) {
 
+	for (int y = 0; y < left.getY(); y++)
+		for (int x = 0; x < left.getX(); x++)
+			left->set(x, y, right.get(x, y) + left.get(x, y));
+
+	return left;
+}
 
 
 
