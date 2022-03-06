@@ -71,7 +71,7 @@ void Message::debug() {
     _true_position.debug();
     std::cout << "Acceleration = ";
     _acceleration.debug();
-    std::cout << "Directory = ";
+    std::cout << "Direction = ";
     _direction.debug();
 }
 

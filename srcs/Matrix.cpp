@@ -8,6 +8,17 @@ Matrix::Matrix(int x, int y) {
     this->data = new double[x * y]();
 }
 
+// Constructor per copy
+Matrix::Matrix(Matrix const &matrix) {
+	this->x_size = matrix.getWidth();
+	this->y_size = matrix.getHeight();
+
+    this->data = new double[this->x_size * this->y_size]();
+	for (int x = 0; x < this->x_size; x++)
+		for (int y = 0; y < this->y_size; y++)
+			this->set(x, y, matrix.get(x, y));
+}
+
 // Destructor
 Matrix::~Matrix() {
 }
@@ -23,12 +34,12 @@ void Matrix::set(int x, int y, double value) {
 }
 
 // Return Y size
-unsigned char Matrix::getY() const {
+unsigned char Matrix::getHeight() const {
     return this->y_size;
 }
 
 // Return X size
-unsigned char Matrix::getX() const {
+unsigned char Matrix::getWidth() const {
     return this->x_size;
 }
 
@@ -44,51 +55,131 @@ void Matrix::print() const {
 }
 
 // Add matrix with current and return a new matrix
-Matrix &Matrix::add(Matrix &matrix) {
-//    if (matrix.getY() != this->y_size && matrix.getX() != this->x_size)
-//        return
+Matrix *Matrix::add(Matrix &matrix) {
+	if (matrix.getHeight() != this->y_size && matrix.getWidth() != this->x_size)
+		throw InvalidSizeError();
 
 	Matrix *result = new Matrix(this->x_size, this->y_size);
 
     for (int y = 0; y < this->y_size; y++)
 		for (int x = 0; x < this->x_size; x++)
 			result->set(x, y, this->get(x, y) + matrix.get(x, y));
-	return *result;
+	return result;
 }
 
-// Multiply matrix with current and return a new matrix
-Matrix &Matrix::dot(Matrix &matrix) {
-//	if (matrix.getY() != this->y_size && matrix.getX() != this->x_size)
-//		return ;
+// Multiply current matrix by matrix and return a new matrix
+Matrix *Matrix::dot(Matrix &matrix) {
+	if (matrix.getHeight() != this->y_size && matrix.getWidth() != this->x_size)
+		throw InvalidSizeError();
 
 	Matrix *result = new Matrix(this->x_size, this->y_size);
 
 	for (int y = 0; y < this->y_size; y++)
 		for (int x = 0; x < this->x_size; x++)
 			result->set(x, y, this->get(x, y) * matrix.get(x, y));
-	return *result;
+	return result;
+}
+
+// Multiply current matrix by a scalar and return a new matrix
+Matrix *Matrix::dot(double scalar) {
+	Matrix *result = new Matrix(this->x_size, this->y_size);
+
+	for (int y = 0; y < this->y_size; y++)
+		for (int x = 0; x < this->x_size; x++)
+			result->set(x, y, this->get(x, y) * scalar);
+	return result;
 }
 
 // Transpose current matrix and return a new reference
-Matrix &Matrix::transpose() {
+Matrix *Matrix::transpose() {
 	Matrix *result = new Matrix(this->y_size, this->x_size);
 
 	for (int y = 0; y < this->y_size; y++)
-		for (int x = 0; x < this->x_size; x++) {
+		for (int x = 0; x < this->x_size; x++)
 			result->set(x, y, this->get(y, x));
+	return result;
+}
+
+// Overload operator add with a matrix
+Matrix *Matrix::operator+(const Matrix &rhs) {
+	if (rhs.getHeight() != this->y_size && rhs.getWidth() != this->x_size)
+		throw InvalidSizeError();
+
+	Matrix *result = new Matrix(this->x_size, this->y_size);
+
+    for (int y = 0; y < this->y_size; y++)
+		for (int x = 0; x < this->x_size; x++)
+			result->set(x, y, this->get(x, y) + rhs.get(x, y));
+	return result;
+}
+
+// Create a identity matrice
+Matrix *Matrix::identity(int w, int h, double value) {
+	Matrix *m = new Matrix(w, h);
+
+	for (int i = 0; i < (w < h ? w : h); i++)
+		m->set(i, i, value);
+	return m;
+}
+
+Matrix *Matrix::rrf() {
+	Matrix *m = new Matrix(*this);
+	int i = 0;
+	int lead = 0;
+	int row_count = getHeight();
+	int col_count = getWidth();
+
+	for (int r = 0; r < row_count; r++) {
+		if (col_count <= lead)
+			return new Matrix(*m);
+		i = r;
+		while (m->get(lead, i) == 0) {
+			i++;
+			if (row_count == i) {
+				i = r;
+				lead++;
+				if (col_count == lead)
+					return new Matrix(*m);
+			}
 		}
-	return *result;
+		for (int j = 0; j < col_count; j++) {
+			double tmp = m->get(j, i);
+			m->set(j, i, m->get(j, r));
+			m->set(j, r, tmp);
+		}
+		if (m->get(lead, r) != 0) {
+			double backup = m->get(lead, r);
+			for (int j = 0; j < col_count; j++)
+				m->set(j, r, m->get(j, r) / backup);
+		}
+		for (i = 0; i < row_count; i++) {
+			if (i != r) {
+				double backup = m->get(lead, i);
+				for (int j = 0; j < col_count; j++) {
+					m->set(j, i, m->get(j, i) - backup * m->get(j, r));
+				}
+			}
+		}
+		lead++;
+	}
+	return m;
 }
 
-// Overload operator add
-Matrix Matrix::operator+(Matrix &left, const Matrix &right) {
-
-	for (int y = 0; y < left.getY(); y++)
-		for (int x = 0; x < left.getX(); x++)
-			left->set(x, y, right.get(x, y) + left.get(x, y));
-
-	return left;
+Matrix *Matrix::inverse() {
+	if (getWidth() != getHeight())
+		throw new InvalidSizeError();
+	Matrix *identity = Matrix::identity(getWidth(), getHeight(), 1);
+	Matrix *merge = new Matrix(getWidth() * 2, getHeight());
+	for (int x = 0; x < getWidth(); x++) {
+		for (int y = 0; y < getHeight(); y++) {
+			merge->set(x, y, get(x, y));
+			merge->set(x + getWidth(), y, identity->get(x, y));
+		}
+	}
+	Matrix *row_echelon = merge->rrf();
+	Matrix *result = new Matrix(getWidth(), getHeight());
+	for (int x = 0; x < getWidth(); x++)
+		for (int y = 0; y < getHeight(); y++)
+			result->set(x, y, row_echelon->get(x + getWidth(), y));
+	return result;
 }
-
-
-

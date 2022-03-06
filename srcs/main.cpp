@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
+/*   By: thallard <thallard@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 18:36:03 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/02 21:07:31 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/05 23:00:554 by thallard         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,18 +20,8 @@ int main(int ac, char **av) {
     char buffer[buff_len];
     int receive_length;
 
-    Matrix *matrix = new Matrix(3, 3);
-	Matrix *matrix1 = new Matrix(3, 3);
-    std::cout << matrix->get(1, 1) << std::endl;
-    matrix->set(2, 2, 17);
-	matrix->set(0, 1, 42);
-	matrix1->set(2, 2, 17);
-
-	matrix1->print();
-	matrix->add(*matrix1);
-	matrix->print();
-	matrix->transpose().print();
-//	matrix->print();
+    // KalmanFilter *filter = new KalmanFilter();
+    // delete filter;
 
     if (ac != 2)
         put_error("Usage: ./ft_kalman <PORT>");
@@ -65,7 +55,7 @@ int main(int ac, char **av) {
     bzero(buffer, buff_len);
     receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
 
-    while (1) {
+    while (true) {
         Message message = Message();
         int receive_length;
 
@@ -77,6 +67,7 @@ int main(int ac, char **av) {
         bzero(buffer, buff_len);
         receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
         message.parseTruePosition(buffer);
+        std::cout << "[" << buffer << "]" << std::endl;
         
         std::cout << ">>> SPEED <<<" << std::endl;
         bzero(buffer, buff_len);
@@ -101,8 +92,12 @@ int main(int ac, char **av) {
         receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
 
         message.debug();
+
+        std::stringstream ss;
+        ss << message.getTruePosition().getX() << " " << message.getTruePosition().getY() << " " << message.getTruePosition().getZ();
+        std::cout << sendto(sockfd, ss.str().c_str(), strlen(ss.str().c_str()), 0, (const sockaddr *)NULL, sizeof(server_address)) << std::endl;
     }
-    
+
     close(sockfd);
     return(0);
 }

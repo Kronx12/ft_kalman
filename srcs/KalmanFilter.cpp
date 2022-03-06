@@ -6,11 +6,10 @@
 
 // Basic constructor
 KalmanFilter::KalmanFilter() {
-	X = 0;
-	P = 0;
-	R = 0;
-	Q = 0;
-//	U = new Matrix(10, 10);
+	dt = 3;
+	E = new Matrix(1, 10); // TODO Fill E
+	A = new Matrix(1, 1);
+
 }
 
 // Destructor
@@ -19,8 +18,12 @@ KalmanFilter::~KalmanFilter() {
 
 void KalmanFilter::prediction() {
 	// Calculate X predicted mean
-//	X = this->A.dot(this->X) + this->B.dot(this->U); // TODO
+	// X = this->A.dot(this->X) + this->B.dot(this->U); // TODO
 
 	// Calculate P predicted covariance
-	P = 0; // TODO
+	// P = this->A.dot(this->P.dot(this->A.transpose())) + Q;
+}
+
+double KalmanFilter::ft_pow(double value, int pow) {
+    return (pow > 0 ? (value * ft_pow(value, pow - 1)) : 1);
 }

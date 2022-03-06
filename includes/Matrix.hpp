@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <array>
+#include <exception>
 
 class Matrix {
     private:
@@ -25,9 +26,12 @@ class Matrix {
     public:
         Matrix(int x, int y);
         ~Matrix();
-
+        Matrix(Matrix const &);
         // Utilities
         Matrix const &clone(Matrix const &) const;
+
+        // Static functions
+        static Matrix *identity(int w, int h, double value);
 
         bool is_square() const;
         bool is_identity() const;
@@ -35,16 +39,20 @@ class Matrix {
         double get(int x, int y) const;
         void set(int x, int y, double value);
 
-        unsigned char getX() const;
-        unsigned char getY() const;
+        unsigned char getWidth() const;
+        unsigned char getHeight() const;
 
         void print() const;
 
         // Operators and functions
-        Matrix &add(Matrix &);
-        Matrix &dot(Matrix &);
-		Matrix &transpose();
+        Matrix *add(Matrix &);
+        Matrix *dot(Matrix &);
+        Matrix *dot(double scalar);
+		Matrix *transpose();
+        Matrix *rrf();
+        Matrix *inverse();
 
-		Matrix operator+(Matrix &left, const Matrix &right);
+		Matrix *operator+(const Matrix &rhs);
 };
 
+struct InvalidSizeError : public std::exception { const char *what() const throw () { return "Invalid size"; } };

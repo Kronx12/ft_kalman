@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 17:49:40 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/02 05:25:46 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/06 00:07:05 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,11 @@
 #include <unistd.h>
 
 #include <iostream>
+#include <sstream>
 
 #include "Message.hpp"
 #include "Matrix.hpp"
+#include "KalmanFilter.hpp"
 
 void put_error(std::string error);
 void put_info(const char *format, ...);
