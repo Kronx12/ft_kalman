@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 17:49:40 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/06 00:07:05 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/07 12:27:21 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,14 @@
 
 #include <iostream>
 #include <sstream>
+#include <cmath>
 
 #include "Message.hpp"
 #include "Matrix.hpp"
 #include "KalmanFilter.hpp"
+
+#include "pbPlots.hpp"
+#include "supportLib.hpp"
 
 void put_error(std::string error);
 void put_info(const char *format, ...);
