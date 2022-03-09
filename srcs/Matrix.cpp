@@ -45,6 +45,7 @@ unsigned char Matrix::getWidth() const {
 
 // Debug my matrix
 void Matrix::print() const {
+	std::cout << "Matrix : " << std::endl;
     for (int i = 0; i < y_size; i++) {
         std::cout << '[';
         for (int j = 0; j < x_size; j++) {
@@ -69,14 +70,18 @@ Matrix *Matrix::add(Matrix &matrix) {
 
 // Multiply current matrix by matrix and return a new matrix
 Matrix *Matrix::dot(Matrix &matrix) {
-	if (matrix.getHeight() != this->y_size && matrix.getWidth() != this->x_size)
+	if (this->x_size != matrix.getHeight())
 		throw InvalidSizeError();
 
 	Matrix *result = new Matrix(this->x_size, this->y_size);
 
-	for (int y = 0; y < this->y_size; y++)
-		for (int x = 0; x < this->x_size; x++)
-			result->set(x, y, this->get(x, y) * matrix.get(x, y));
+	for (int i = 0; i < this->x_size; i++)
+		for (int j = 0; j < this->y_size; j++) {
+			double tmp = 0;
+			for (int k = 0; k < matrix.x_size; k++)
+				tmp += this->get(i, k) * matrix.get(k, j);
+			result->set(i, j, tmp);
+		}
 	return result;
 }
 

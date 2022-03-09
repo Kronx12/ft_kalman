@@ -19,6 +19,8 @@ int main(int ac, char **av) {
     int buff_len = 512;
     char buffer[buff_len];
     int receive_length;
+    Message message = Message();
+    std::string buffer_string;
 
     // KalmanFilter *filter = new KalmanFilter();
     // delete filter;
@@ -57,86 +59,91 @@ int main(int ac, char **av) {
 
     std::vector<double> *x_history = new std::vector<double>();
     std::vector<double> *y_history = new std::vector<double>();
-    std::vector<double> *x2_history = new std::vector<double>();
-    std::vector<double> *y2_history = new std::vector<double>();
+    // std::vector<double> *x2_history = new std::vector<double>();
+    // std::vector<double> *y2_history = new std::vector<double>();
 
     int simulation_duration = 100;
     for (int i = 0; i < simulation_duration * 10; i++) {
-        Message message = Message();
-        int receive_length;
+        do {
+            bzero(buffer, buff_len);
+            receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
+            buffer_string = buffer;
 
-        // std::cout << ">>> START <<<" << std::endl;
-        bzero(buffer, buff_len);
-        receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
-        
-        // std::cout << ">>> TRUE POSITION <<<" << std::endl;
-        bzero(buffer, buff_len);
-        receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
-        message.parseTruePosition(buffer);
-        // std::cout << "[" << buffer << "]" << std::endl;
-        
-        // std::cout << ">>> SPEED <<<" << std::endl;
-        bzero(buffer, buff_len);
-        receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
-        message.parseSpeed(buffer);
-        // std::cout << buffer << std::endl;
-        
-        // std::cout << ">>> ACCELERATION <<<" << std::endl;
-        bzero(buffer, buff_len);
-        receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
-        message.parseAcceleration(buffer);
-        // std::cout << buffer << std::endl;
+            int debug = 0;
+            if (buffer_string.find("MSG_START") != std::string::npos) {
+                std::cout << ">> START <<" << std::endl;
+            } else if (buffer_string.find("TRUE POSITION") != std::string::npos) {
+                std::cout << ">> Update True Position <<" << std::endl;
+                if (debug)
+                    std::cout << "True Position : " << buffer_string << std::endl;
+                message.parseTruePosition(buffer_string);
+            } else if (buffer_string.find("SPEED") != std::string::npos) {
+                std::cout << ">> Update Acceleration <<" << std::endl;
+                if (debug)
+                    std::cout << "Acceleration : " << buffer_string << std::endl;
+                message.parseAcceleration(buffer_string);
+            } else if (buffer_string.find("ACCELERATION") != std::string::npos) {
+                std::cout << ">> Update Velociy <<" << std::endl;
+                if (debug)
+                    std::cout << "Velociy : " << buffer_string << std::endl;
+                message.parseVelocity(buffer_string);
+            } else if (buffer_string.find("DIRECTION") != std::string::npos) {
+                std::cout << ">> Update Direction <<" << std::endl;
+                if (debug)
+                    std::cout << "Direction : " << buffer_string << std::endl;
+                message.parseDirection(buffer_string);
+            } else if (buffer_string.find("MSG_END") != std::string::npos) {
+                std::cout << ">> END <<" << std::endl;
 
-        // std::cout << ">>> DIRECTION <<<" << std::endl;
-        bzero(buffer, buff_len);
-        receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
-        message.parseDirection(buffer);
-        // std::cout << buffer << std::endl;
-        
-        // std::cout << ">>> END <<<" << std::endl;
-        bzero(buffer, buff_len);
-        receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
+                message.getTruePosition().debug();
 
+                double dt = 0.01;
 
-        message.getAcceleration().setX(message.getAcceleration().getX() / 3.6);
-        message.getAcceleration().setY(message.getAcceleration().getY() / 3.6);
-        message.getAcceleration().setZ(message.getAcceleration().getZ() / 3.6);
-        // message.debug();
-        std::cout << "Before : ";
-        message.getTruePosition().debug();
-        std::cout << "After : ";
+                // convert acceleration to km/h2
+                double acceleration = message.getAcceleration() / 1000 * 3600;
 
-        Vector3D vec;
-        vec.setX(cos(message.getDirection().getX()) * cos(message.getDirection().getY()) * message.getSpeed());
-        vec.setY(sin(message.getDirection().getX()) * cos(message.getDirection().getY()) * message.getSpeed());
-        vec.setZ(sin(message.getDirection().getY()) * message.getSpeed());
-        // vec.debug();
+                // copy velocity in km/h into new velocity in m/s.
+                // update velocity with acceleration.
+                message.getVelocity().setX(message.getVelocity().getX() + acceleration * dt);
+                message.getVelocity().setY(message.getVelocity().getY() + acceleration * dt);
+                message.getVelocity().setZ(message.getVelocity().getZ() + acceleration * dt);
 
-        message.getAcceleration().setX(message.getAcceleration().getX() + vec.getX() * 0.01);
-        message.getAcceleration().setY(message.getAcceleration().getY() + vec.getY() * 0.01);
-        message.getAcceleration().setZ(message.getAcceleration().getZ() + vec.getZ() * 0.01);
+                // Make rotation matrix.
+                Matrix rotation_matrix = Matrix(3, 3);
+                rotation_matrix.set(0, 0, cos(message.getDirection().getY()) * cos(message.getDirection().getX()) - sin(message.getDirection().getY()) * cos(message.getDirection().getZ()) * sin(message.getDirection().getX()));
+                rotation_matrix.set(0, 1, -sin(message.getDirection().getY()) * cos(message.getDirection().getX()) - cos(message.getDirection().getY()) * cos(message.getDirection().getZ()) * sin(message.getDirection().getX()));
+                rotation_matrix.set(0, 2, sin(message.getDirection().getZ()) * sin(message.getDirection().getX()));
+                rotation_matrix.set(1, 0, cos(message.getDirection().getY()) * sin(message.getDirection().getX()) + sin(message.getDirection().getY()) * cos(message.getDirection().getZ()) * cos(message.getDirection().getX()));
+                rotation_matrix.set(1, 1, -sin(message.getDirection().getY()) * sin(message.getDirection().getX()) + cos(message.getDirection().getY()) * cos(message.getDirection().getZ()) * cos(message.getDirection().getX()));
+                rotation_matrix.set(1, 2, sin(message.getDirection().getZ()) * cos(message.getDirection().getX()));
+                rotation_matrix.set(2, 0, -sin(message.getDirection().getY()) * sin(message.getDirection().getZ()));
+                rotation_matrix.set(2, 1, cos(message.getDirection().getY()) * sin(message.getDirection().getZ()));
+                rotation_matrix.set(2, 2, cos(message.getDirection().getZ()));
 
-        Vector3D new_position;
-        new_position.setX(message.getTruePosition().getX() + message.getAcceleration().getX());
-        new_position.setY(message.getTruePosition().getY() + message.getAcceleration().getY());
-        new_position.setZ(message.getTruePosition().getZ() + message.getAcceleration().getZ());
-        new_position.debug();
+                // apply rotation matrix to velocity.
+                Matrix tmpVelocityMatrix = Matrix(1, 3);
+                tmpVelocityMatrix.set(0, 0, message.getVelocity().getX());
+                tmpVelocityMatrix.set(0, 1, message.getVelocity().getY());
+                tmpVelocityMatrix.set(0, 2, message.getVelocity().getZ());
 
-        x_history->push_back(new_position.getX());
-        y_history->push_back(new_position.getZ());
+                Matrix *rotatedVelocity = rotation_matrix.dot(tmpVelocityMatrix);
+                // rotatedVelocity->print();
 
-        x2_history->push_back(message.getTruePosition().getX());
-        y2_history->push_back(message.getTruePosition().getZ());
+                // update position with velocity.
+                message.getTruePosition().setX(message.getTruePosition().getX() + rotatedVelocity->get(0, 0) * dt);
+                message.getTruePosition().setY(message.getTruePosition().getY() + rotatedVelocity->get(0, 1) * dt);
+                message.getTruePosition().setZ(message.getTruePosition().getZ() + rotatedVelocity->get(0, 2) * dt);
 
-/*
-x(t+1) = x(t) + Vx / 3.6 + cos(Dx) * cos(Dy) * s * 0.01
-y(t+1) = y(t) + Vy / 3.6 + sin(Dx) * cos(Dy) * s * 0.01
-z(t+1) = z(t) + Vz / 3.6 + sin(Dy) * s * 0.01
-*/
+                message.getTruePosition().debug();
 
-        std::stringstream ss;
-        ss << new_position.getX() << " " << new_position.getY() << " " << new_position.getZ();
-        sendto(sockfd, ss.str().c_str(), strlen(ss.str().c_str()), 0, (const sockaddr *)NULL, sizeof(server_address));
+                x_history->push_back(message.getTruePosition().getX());
+                y_history->push_back(message.getTruePosition().getZ());
+
+                std::stringstream ss;
+                ss << message.getTruePosition().getX() << " " << message.getTruePosition().getY() << " " << message.getTruePosition().getZ();
+                sendto(sockfd, ss.str().c_str(), strlen(ss.str().c_str()), 0, (const sockaddr *)NULL, sizeof(server_address));
+            }
+        } while (buffer_string.find("MSG_END") != std::string::npos);
     }
 
     RGBABitmapImageReference *imageRef = CreateRGBABitmapImageReference();
