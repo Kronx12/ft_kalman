@@ -59,11 +59,10 @@ int main(int ac, char **av) {
 
     std::vector<double> *x_history = new std::vector<double>();
     std::vector<double> *y_history = new std::vector<double>();
-    // std::vector<double> *x2_history = new std::vector<double>();
-    // std::vector<double> *y2_history = new std::vector<double>();
 
-    int simulation_duration = 100;
+    int simulation_duration = 1000;
     for (int i = 0; i < simulation_duration * 10; i++) {
+        std::cout << "I = " << i << std::endl;
         do {
             bzero(buffer, buff_len);
             receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
@@ -95,52 +94,38 @@ int main(int ac, char **av) {
             } else if (buffer_string.find("MSG_END") != std::string::npos) {
                 std::cout << ">> END <<" << std::endl;
 
-                message.getTruePosition().debug();
+                message.debug();
+                // message.getTruePosition().debug();
 
                 double dt = 0.01;
 
-                // convert acceleration to km/h2
-                double acceleration = message.getAcceleration() / 1000 * 3600;
+                // Add acceleration to velocity.
+                // message.getVelocity()->debug();
+                message.getVelocity()->setX(message.getVelocity()->getX() + message.getAcceleration() * dt);
+                message.getVelocity()->setY(message.getVelocity()->getY() + message.getAcceleration() * dt);
+                message.getVelocity()->setZ(message.getVelocity()->getZ() + message.getAcceleration() * dt);
 
-                // copy velocity in km/h into new velocity in m/s.
-                // update velocity with acceleration.
-                message.getVelocity().setX(message.getVelocity().getX() + acceleration * dt);
-                message.getVelocity().setY(message.getVelocity().getY() + acceleration * dt);
-                message.getVelocity().setZ(message.getVelocity().getZ() + acceleration * dt);
 
-                // Make rotation matrix.
-                Matrix rotation_matrix = Matrix(3, 3);
-                rotation_matrix.set(0, 0, cos(message.getDirection().getY()) * cos(message.getDirection().getX()) - sin(message.getDirection().getY()) * cos(message.getDirection().getZ()) * sin(message.getDirection().getX()));
-                rotation_matrix.set(0, 1, -sin(message.getDirection().getY()) * cos(message.getDirection().getX()) - cos(message.getDirection().getY()) * cos(message.getDirection().getZ()) * sin(message.getDirection().getX()));
-                rotation_matrix.set(0, 2, sin(message.getDirection().getZ()) * sin(message.getDirection().getX()));
-                rotation_matrix.set(1, 0, cos(message.getDirection().getY()) * sin(message.getDirection().getX()) + sin(message.getDirection().getY()) * cos(message.getDirection().getZ()) * cos(message.getDirection().getX()));
-                rotation_matrix.set(1, 1, -sin(message.getDirection().getY()) * sin(message.getDirection().getX()) + cos(message.getDirection().getY()) * cos(message.getDirection().getZ()) * cos(message.getDirection().getX()));
-                rotation_matrix.set(1, 2, sin(message.getDirection().getZ()) * cos(message.getDirection().getX()));
-                rotation_matrix.set(2, 0, -sin(message.getDirection().getY()) * sin(message.getDirection().getZ()));
-                rotation_matrix.set(2, 1, cos(message.getDirection().getY()) * sin(message.getDirection().getZ()));
-                rotation_matrix.set(2, 2, cos(message.getDirection().getZ()));
+                // Rotate velocity with euler angles.
+                // message.getVelocity()->debug();
+                message.getVelocity()->setX(message.getVelocity()->getX() * sin(message.getDirection()->getX()));
+                message.getVelocity()->setY(message.getVelocity()->getY() * -(sin(message.getDirection()->getY() * cos(message.getDirection()->getX()))));
+                message.getVelocity()->setZ(message.getVelocity()->getZ() * -(cos(message.getDirection()->getY()) * cos(message.getDirection()->getX())));
 
-                // apply rotation matrix to velocity.
-                Matrix tmpVelocityMatrix = Matrix(1, 3);
-                tmpVelocityMatrix.set(0, 0, message.getVelocity().getX());
-                tmpVelocityMatrix.set(0, 1, message.getVelocity().getY());
-                tmpVelocityMatrix.set(0, 2, message.getVelocity().getZ());
+                // Add velocity to position.
+                // message.getVelocity()->debug();
+                // message.getTruePosition()->debug();
+                message.getTruePosition()->setX(message.getTruePosition()->getX() + message.getVelocity()->getX() * dt);
+                message.getTruePosition()->setY(message.getTruePosition()->getY() + message.getVelocity()->getY() * dt);
+                message.getTruePosition()->setZ(message.getTruePosition()->getZ() + message.getVelocity()->getZ() * dt);
 
-                Matrix *rotatedVelocity = rotation_matrix.dot(tmpVelocityMatrix);
-                // rotatedVelocity->print();
-
-                // update position with velocity.
-                message.getTruePosition().setX(message.getTruePosition().getX() + rotatedVelocity->get(0, 0) * dt);
-                message.getTruePosition().setY(message.getTruePosition().getY() + rotatedVelocity->get(0, 1) * dt);
-                message.getTruePosition().setZ(message.getTruePosition().getZ() + rotatedVelocity->get(0, 2) * dt);
-
-                message.getTruePosition().debug();
-
-                x_history->push_back(message.getTruePosition().getX());
-                y_history->push_back(message.getTruePosition().getZ());
+                message.debug();
+                // message.getTruePosition()->debug();
+                x_history->push_back(message.getTruePosition()->getX());
+                y_history->push_back(message.getTruePosition()->getZ());
 
                 std::stringstream ss;
-                ss << message.getTruePosition().getX() << " " << message.getTruePosition().getY() << " " << message.getTruePosition().getZ();
+                ss << message.getTruePosition()->getX() << " " << message.getTruePosition()->getY() << " " << message.getTruePosition()->getZ();
                 sendto(sockfd, ss.str().c_str(), strlen(ss.str().c_str()), 0, (const sockaddr *)NULL, sizeof(server_address));
             }
         } while (buffer_string.find("MSG_END") != std::string::npos);
@@ -163,8 +148,8 @@ int main(int ac, char **av) {
     DrawScatterPlot(imageRef, 2400, 1600, x_history, y_history, &stringRef);
 
 
-    std::vector<double> *pngData = ConvertToPNG(imageRef->image);
-    WriteToFile(pngData, "plot.png");
+    // std::vector<double> *pngData = ConvertToPNG(imageRef->image);
+    // WriteToFile(pngData, "plot.png");
     // DeleteImage(imageRef->image);
 
     close(sockfd);

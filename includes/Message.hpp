@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 20:11:12 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/09 12:10:54 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/10 01:21:17 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,11 @@ class Message {
         
         double      getAcceleration();
         Timestamp   getAccelerationTimestamp();
-        Vector3D    getTruePosition();
+        Vector3D    *getTruePosition();
         Timestamp   getTruePositionTimestamp();
-        Vector3D    getVelocity();
+        Vector3D    *getVelocity();
         Timestamp   getVelocityTimestamp();
-        Vector3D    getDirection();
+        Vector3D    *getDirection();
         Timestamp   getDirectionTimestamp();
         
         void setAccelerationTimestamp(Timestamp timestamp);
@@ -49,7 +49,6 @@ class Message {
         void debug();
 
         ~Message();
-    
     private:
         Timestamp _acceleration_timestamp;
         double _acceleration;
