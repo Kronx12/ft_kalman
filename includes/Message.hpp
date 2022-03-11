@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 20:11:12 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/10 01:21:17 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/11 21:08:50 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <regex>
+#include <cmath>
 
 #include "Vector3D.hpp"
 #include "Timestamp.hpp"
@@ -45,10 +46,13 @@ class Message {
         void parseTruePosition(std::string str);
         void parseVelocity(std::string str);
         void parseDirection(std::string str);
+        
+        Matrix *getStateMatrix();
 
         void debug();
 
         ~Message();
+        
     private:
         Timestamp _acceleration_timestamp;
         double _acceleration;

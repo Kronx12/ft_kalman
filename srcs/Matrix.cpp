@@ -1,11 +1,11 @@
 #include "../includes/Matrix.hpp"
 
 // Constructor
-Matrix::Matrix(int x, int y) {
-    this->x_size = x;
-    this->y_size = y;
+Matrix::Matrix(int height, int width) {
+    this->x_size = width;
+    this->y_size = height;
 
-    this->data = new double[x * y]();
+    this->data = new double[height * width]();
 }
 
 // Constructor per copy

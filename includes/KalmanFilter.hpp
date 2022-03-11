@@ -1,28 +1,41 @@
-//
-// Created by Thomas HALLARD  on 03/03/2022.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   KalmanFilter.hpp                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/03/11 13:39:41 by gbaud             #+#    #+#             */
+/*   Updated: 2022/03/11 15:12:45 by gbaud            ###   ########lyon.fr   */
+/*                                                                            */
+/* ************************************************************************** */
 
-#pragma once
+#ifndef KALMANFILTER_HPP
+#define KALMANFILTER_HPP
+
+#include <cmath>
 
 #include "Matrix.hpp"
+#include "Message.hpp"
 
 class KalmanFilter {
-	private:
-		// Delta time
-		double dt;
-
-		Matrix *E;
-		Matrix *A;
-		// Matrix *Q;
-		// Matrix *P;
-
 	public:
 		KalmanFilter();
 		~KalmanFilter();
 
-		void prediction();
-		
-		static double ft_pow(double value, int pow);
-    
+		Matrix *predict(Message msg, double dt);
+		void setPosition(Message msg);
+		void setVelocity(Message msg);
+	
+	private:
+		Matrix *_X_Current;
+		Matrix *_P_Current;
+		Matrix *_X_Previous;
+		Matrix *_P_Previous;
+		Matrix *_A;
+		Matrix *_B;
+		Matrix *_Q;
+		Matrix *_w;
 };
 
+#endif // !KALMANFILTER_HPP

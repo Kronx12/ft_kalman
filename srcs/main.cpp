@@ -95,32 +95,11 @@ int main(int ac, char **av) {
                 std::cout << ">> END <<" << std::endl;
 
                 message.debug();
-                // message.getTruePosition().debug();
 
-                double dt = 0.01;
+                Matrix *m = message.getStateMatrix();
+                m->print();
+                message.getDirection()->debug();
 
-                // Add acceleration to velocity.
-                // message.getVelocity()->debug();
-                message.getVelocity()->setX(message.getVelocity()->getX() + message.getAcceleration() * dt);
-                message.getVelocity()->setY(message.getVelocity()->getY() + message.getAcceleration() * dt);
-                message.getVelocity()->setZ(message.getVelocity()->getZ() + message.getAcceleration() * dt);
-
-
-                // Rotate velocity with euler angles.
-                // message.getVelocity()->debug();
-                message.getVelocity()->setX(message.getVelocity()->getX() * sin(message.getDirection()->getX()));
-                message.getVelocity()->setY(message.getVelocity()->getY() * -(sin(message.getDirection()->getY() * cos(message.getDirection()->getX()))));
-                message.getVelocity()->setZ(message.getVelocity()->getZ() * -(cos(message.getDirection()->getY()) * cos(message.getDirection()->getX())));
-
-                // Add velocity to position.
-                // message.getVelocity()->debug();
-                // message.getTruePosition()->debug();
-                message.getTruePosition()->setX(message.getTruePosition()->getX() + message.getVelocity()->getX() * dt);
-                message.getTruePosition()->setY(message.getTruePosition()->getY() + message.getVelocity()->getY() * dt);
-                message.getTruePosition()->setZ(message.getTruePosition()->getZ() + message.getVelocity()->getZ() * dt);
-
-                message.debug();
-                // message.getTruePosition()->debug();
                 x_history->push_back(message.getTruePosition()->getX());
                 y_history->push_back(message.getTruePosition()->getZ());
 

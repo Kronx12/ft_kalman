@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 20:16:53 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/06 00:08:52 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/11 13:38:14 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,15 @@ double Vector3D::getZ() { return (_z); }
 void Vector3D::setX(double x) { _x = x; }
 void Vector3D::setY(double y) { _y = y; }
 void Vector3D::setZ(double z) { _z = z; }
+
+Matrix *Vector3D::toMatrix() {
+    Matrix *matrix = new Matrix(4, 1);
+    matrix->set(0, 0, _x);
+    matrix->set(1, 0, _y);
+    matrix->set(2, 0, _z);
+    matrix->set(3, 0, 1);
+    return (matrix);
+}
 
 void Vector3D::debug() {
     std::cout << "Vector3D: [ " << _x << ", " << _y << ", " << _z << " ]" << std::endl;

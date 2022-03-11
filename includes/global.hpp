@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 17:49:40 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/11 04:49:38 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/11 13:28:47 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 #include <sstream>
 #include <cmath>
 
-#include "matplotlib.hpp"
+#include "pbPlots.hpp"
 
 #include "Message.hpp"
 #include "Matrix.hpp"

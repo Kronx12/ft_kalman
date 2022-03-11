@@ -75,4 +75,71 @@ void Message::debug() {
     _direction.debug();
 }
 
+Matrix *Message::getStateMatrix() {
+    Matrix *matrix = new Matrix(9, 1);
+    matrix->set(0, 0, _true_position.getX());
+    matrix->set(1, 0, _true_position.getY());
+    matrix->set(2, 0, _true_position.getZ());
+    matrix->set(3, 0, _velocity.getX());
+    matrix->set(4, 0, _velocity.getY());
+    matrix->set(5, 0, _velocity.getZ());
+    
+    double x = _direction.getX();
+    double y = _direction.getY();
+    double z = _direction.getZ();
+
+    // From euler angles to rotation matrix
+    Matrix *rotation = new Matrix(3, 3);
+    
+    double c1 = cos(x);
+    double c2 = cos(y);
+    double c3 = cos(z);
+    double s1 = sin(x);
+    double s2 = sin(y);
+    double s3 = sin(z);
+    rotation->set(0, 0, c2 * c3);
+    rotation->set(0, 1, -c2 * s3);
+    rotation->set(0, 2, s2);
+    rotation->set(1, 0, c1 * s3 + c3 * s1 * s2);
+    rotation->set(1, 1, c1 * c3 - s1 * s2 * s3);
+    rotation->set(1, 2, -c2 * s1);
+    rotation->set(2, 0, s1 * s3 - c1 * c3 * s2);
+    rotation->set(2, 1, c3 * s1 + c1 * s2 * s3);
+    rotation->set(2, 2, c1 * c2);
+    
+    // Make acceleration vector
+    Matrix *acceleration = new Matrix(3, 1);
+    acceleration->set(0, 0, _acceleration * 0.01);
+    acceleration->set(1, 0, _acceleration * 0.01);
+    acceleration->set(2, 0, _acceleration * 0.01);
+
+    // Update acceleration vector with rotation matrix
+    Matrix *acceleration_rotated = rotation->dot(*acceleration);
+    matrix->set(6, 0, acceleration_rotated->get(0, 0));
+    matrix->set(7, 0, acceleration_rotated->get(1, 0));
+    matrix->set(8, 0, acceleration_rotated->get(2, 0));
+    
+    return matrix;
+}
+/*
+[ -6.48579 ]
+[ -3.91508 ]
+[ 0.5 ]
+[ -0.00725851 ]
+[ -0.00296938 ]
+[ -0.00247724 ]
+[ 59.0243 ]
+[ 57.7004 ]
+[ 59.8562 ]
+
+[ -6.48579 ]
+[ -3.91508 ]
+[ 0.5 ]
+[ -0.00725851 ]
+[ -0.00296938 ]
+[ -0.00247724 ]
+[ 59.0243 ]
+[ 57.7004 ]
+[ 59.8562 ]
+*/
 Message::~Message() {}

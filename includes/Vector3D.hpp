@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 20:12:46 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/06 00:08:57 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/11 13:37:54 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define VECTOR3D_HPP 
 
 #include <iostream>
+#include "Matrix.hpp"
 
 class Vector3D {
     public:
@@ -27,6 +28,8 @@ class Vector3D {
         void setX(double value);
         void setY(double value);
         void setZ(double value);
+
+        Matrix *toMatrix();
 
         void debug();
 
