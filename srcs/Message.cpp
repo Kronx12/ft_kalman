@@ -27,7 +27,7 @@ void Message::setDirection(Vector3D vector) { _direction = vector; }
 void Message::parseAcceleration(std::string str) {
     // Parse speed
     std::smatch res;
-    std::regex const term_pattern { "\\[([0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3})\\]SPEED\\s(-?[0-9]+\\.[0-9]+)" };
+    std::regex term_pattern("\\[([0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3})\\]SPEED\\s(-?[0-9]+\\.[0-9]+)");
     std::string::const_iterator start(str.cbegin());
     std::regex_search(start, str.cend(), res, term_pattern);
     _acceleration_timestamp = Timestamp(res[1]);
@@ -37,7 +37,7 @@ void Message::parseAcceleration(std::string str) {
 void Message::parseTruePosition(std::string str) {
     // Parse true position
     std::smatch res;
-    std::regex const term_pattern { "\\[([0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3})\\]TRUE POSITION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)" };
+    std::regex term_pattern("\\[([0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3})\\]TRUE POSITION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)");
     std::string::const_iterator start(str.cbegin());
     std::regex_search(start, str.cend(), res, term_pattern);
     _true_position_timestamp = Timestamp(res[1]);
@@ -47,7 +47,7 @@ void Message::parseTruePosition(std::string str) {
 void Message::parseVelocity(std::string str) {
     // Parse true position
     std::smatch res;
-    std::regex const term_pattern { "\\[([0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3})\\]ACCELERATION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)" };
+    std::regex term_pattern("\\[([0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3})\\]ACCELERATION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)");
     std::string::const_iterator start(str.cbegin());
     std::regex_search(start, str.cend(), res, term_pattern);
     _velocity_timestamp = Timestamp(res[1]);
@@ -57,7 +57,7 @@ void Message::parseVelocity(std::string str) {
 void Message::parseDirection(std::string str) {
     // Parse true position
     std::smatch res;
-    std::regex const term_pattern { "\\[([0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3})\\]DIRECTION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)" };
+    std::regex term_pattern("\\[([0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3})\\]DIRECTION\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)\\s(-?[0-9]+\\.[0-9]+)");
     std::string::const_iterator start(str.cbegin());
     std::regex_search(start, str.cend(), res, term_pattern);
     _direction_timestamp = Timestamp(res[1]);

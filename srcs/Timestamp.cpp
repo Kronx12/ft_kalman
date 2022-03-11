@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/02 20:20:36 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/02 21:05:51 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/11 02:44:42 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 Timestamp::Timestamp() : _time(0) {}
 
 Timestamp::Timestamp(std::string str) {
-    std::regex const term_pattern { "([0-9]{2}):([0-9]{2}):([0-9]{2}\\.[0-9]{3})" };
+    std::regex term_pattern("([0-9]{2}):([0-9]{2}):([0-9]{2}\\.[0-9]{3})");
     std::smatch res;
     std::string::const_iterator start(str.cbegin());
     std::regex_search(start, str.cend(), res, term_pattern);

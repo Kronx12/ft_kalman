@@ -131,27 +131,6 @@ int main(int ac, char **av) {
         } while (buffer_string.find("MSG_END") != std::string::npos);
     }
 
-    RGBABitmapImageReference *imageRef = CreateRGBABitmapImageReference();
-
-    std::vector<double> x{-2, -1, 0, 1, 2};
-    std::vector<double> y{2, -1, -2, -1, 2};
-
-    StringReference stringRef;
-    std::vector<wchar_t> v;
-    stringRef.string = &v;
-
-    // x_history->reserve(x_history->size() + x2_history->size());
-    // x_history->insert(x2_history->end(), x2_history->begin(), x2_history->end());
-    // y_history->reserve(y_history->size() + y2_history->size());
-    // y_history->insert(y_history->end(), y2_history->begin(), y2_history->end());
-
-    DrawScatterPlot(imageRef, 2400, 1600, x_history, y_history, &stringRef);
-
-
-    // std::vector<double> *pngData = ConvertToPNG(imageRef->image);
-    // WriteToFile(pngData, "plot.png");
-    // DeleteImage(imageRef->image);
-
     close(sockfd);
     return(0);
 }
