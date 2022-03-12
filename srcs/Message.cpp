@@ -107,11 +107,13 @@ Matrix *Message::getStateMatrix() {
     rotation->set(2, 1, c3 * s1 + c1 * s2 * s3);
     rotation->set(2, 2, c1 * c2);
     
+    // Si ca marche pas faut transpose la matrice
+
     // Make acceleration vector
     Matrix *acceleration = new Matrix(3, 1);
-    acceleration->set(0, 0, _acceleration * 0.01);
-    acceleration->set(1, 0, _acceleration * 0.01);
-    acceleration->set(2, 0, _acceleration * 0.01);
+    acceleration->set(0, 0, _acceleration);
+    acceleration->set(1, 0, _acceleration);
+    acceleration->set(2, 0, _acceleration);
 
     // Update acceleration vector with rotation matrix
     Matrix *acceleration_rotated = rotation->dot(*acceleration);
@@ -121,25 +123,5 @@ Matrix *Message::getStateMatrix() {
     
     return matrix;
 }
-/*
-[ -6.48579 ]
-[ -3.91508 ]
-[ 0.5 ]
-[ -0.00725851 ]
-[ -0.00296938 ]
-[ -0.00247724 ]
-[ 59.0243 ]
-[ 57.7004 ]
-[ 59.8562 ]
 
-[ -6.48579 ]
-[ -3.91508 ]
-[ 0.5 ]
-[ -0.00725851 ]
-[ -0.00296938 ]
-[ -0.00247724 ]
-[ 59.0243 ]
-[ 57.7004 ]
-[ 59.8562 ]
-*/
 Message::~Message() {}

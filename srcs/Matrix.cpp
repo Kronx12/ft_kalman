@@ -34,12 +34,12 @@ void Matrix::set(int x, int y, double value) {
 }
 
 // Return Y size
-unsigned char Matrix::getHeight() const {
+int Matrix::getHeight() const {
     return this->y_size;
 }
 
 // Return X size
-unsigned char Matrix::getWidth() const {
+int Matrix::getWidth() const {
     return this->x_size;
 }
 
@@ -73,12 +73,12 @@ Matrix *Matrix::dot(Matrix &matrix) {
 	if (this->x_size != matrix.getHeight())
 		throw InvalidSizeError();
 
-	Matrix *result = new Matrix(this->x_size, this->y_size);
+	Matrix *result = new Matrix(this->y_size, matrix.getWidth());
 
-	for (int i = 0; i < this->x_size; i++)
-		for (int j = 0; j < this->y_size; j++) {
+	for (int i = 0; i < this->y_size; i++)
+		for (int j = 0; j < matrix.getWidth(); j++) {
 			double tmp = 0;
-			for (int k = 0; k < matrix.x_size; k++)
+			for (int k = 0; k < this->getWidth(); k++)
 				tmp += this->get(i, k) * matrix.get(k, j);
 			result->set(i, j, tmp);
 		}

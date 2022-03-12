@@ -25,29 +25,33 @@ KalmanFilter::KalmanFilter() {
 	_w->set(2, 2, 0.1); 
 }
 
-Matrix *KalmanFilter::predict(Message msg, double dt) {
+Matrix *KalmanFilter::predict(Matrix *state, double dt) {
 
 	_X_Previous = _X_Current;
 	_P_Previous = _P_Current;
 
-	Matrix *B = new Matrix(3, 2);
-	B->set(0, 0, msg.getVelocity()->getX());
-	B->set(1, 0, msg.getAcceleration());
-	B->set(0, 1, msg.getVelocity()->getY());
-	B->set(1, 1, msg.getAcceleration());
-	B->set(0, 2, msg.getVelocity()->getZ());
-	B->set(1, 2, msg.getAcceleration());
+	_F = Matrix::identity(9, 9, 1);
+	_F->set(3, 0, dt);
+	_F->set(4, 1, dt);
+	_F->set(5, 2, dt);
+	_F->set(6, 3, dt);
+	_F->set(7, 4, dt);
+	_F->set(8, 5, dt);
+	_F->set(6, 0, dt * dt / 2);
+	_F->set(7, 1, dt * dt / 2);
+	_F->set(8, 2, dt * dt / 2);
 
-	Matrix *u = new Matrix(2, 3);
-	u->set(0, 0, sin(msg.getDirection()->getX()));
-	u->set(0, 1, dt);
-	u->set(1, 0, -(sin(msg.getDirection()->getY()) * cos(msg.getDirection()->getX())));
-	u->set(1, 1, dt);
-	u->set(2, 0, -(cos(msg.getDirection()->getX()) * cos(msg.getDirection()->getY())));
-	u->set(2, 1, dt);
+	std::cout << "F : " << std::endl;
+	std::cout << _F->getHeight() << " | " << _F->getWidth() << std::endl;
+	_F->print();
+	std::cout << "State : " << std::endl;
+	std::cout << state->getHeight() << " | " << state->getWidth() << std::endl;
+	state->print();
 
-	_X_Current = _A->dot(*_X_Previous)->add(*B->dot(*u))->add(*_w);
-	_P_Current = _A->dot(*_P_Previous)->dot(*_A->transpose())->add(*_Q);
+	_X_Current = _F->dot(*state);
+
+	_X_Current->print();
+	
 	return nullptr;
 }
 

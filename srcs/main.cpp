@@ -21,6 +21,7 @@ int main(int ac, char **av) {
     int receive_length;
     Message message = Message();
     std::string buffer_string;
+    KalmanFilter kalman_filter = KalmanFilter();
 
     // KalmanFilter *filter = new KalmanFilter();
     // delete filter;
@@ -96,9 +97,7 @@ int main(int ac, char **av) {
 
                 message.debug();
 
-                Matrix *m = message.getStateMatrix();
-                m->print();
-                message.getDirection()->debug();
+                kalman_filter.predict(message.getStateMatrix(), 0.01);
 
                 x_history->push_back(message.getTruePosition()->getX());
                 y_history->push_back(message.getTruePosition()->getZ());

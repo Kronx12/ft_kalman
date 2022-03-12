@@ -39,8 +39,8 @@ class Matrix {
         double get(int x, int y) const;
         void set(int x, int y, double value);
 
-        unsigned char getWidth() const;
-        unsigned char getHeight() const;
+        int getWidth() const;
+        int getHeight() const;
 
         void print() const;
 
