@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/13 07:39:51 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/13 09:08:37 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/13 17:50:42 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -270,7 +270,7 @@ double Matrix::dotProduct(Matrix a, Matrix b)
 Matrix Matrix::augment(Matrix A, Matrix B)
 {
     Matrix AB(A.rows_, A.cols_ + B.cols_);
-    for (int i = 0; i < AB.rows_; ++i) {
+    for (int i = 0; i < A.rows_; ++i) {
         for (int j = 0; j < AB.cols_; ++j) {
             if (j < A.cols_)
                 AB(i, j) = A(i, j);

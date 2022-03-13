@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/11 13:39:41 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/13 08:10:58 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/13 17:57:54 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,23 +20,24 @@
 
 class KalmanFilter {
 	public:
-		KalmanFilter();
+		KalmanFilter(Matrix initial_state, double dt);
 		~KalmanFilter();
 
-		Matrix predict(Matrix state, double dt);
-		void setPosition(Message msg);
-		void setVelocity(Message msg);
-	
+		Matrix predict();
+		Matrix update(Matrix z);
+		void forceState(Matrix state);	
+		
+		int uptodate = 0;
 	private:
 		Matrix _X_Current;
 		Matrix _P_Current;
-		Matrix _X_Previous;
-		Matrix _P_Previous;
 		Matrix _F;
-		Matrix _A;
-		Matrix _B;
 		Matrix _Q;
-		Matrix _w;
+		Matrix _R;
+		Matrix _H;
+		Matrix _Z;
+		Matrix _S;
+		Matrix _K;
 };
 
 #endif // !KALMANFILTER_HPP

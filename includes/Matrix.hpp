@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/13 07:39:36 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/13 08:36:47 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/13 17:54:01 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ class Matrix {
         Matrix(const Matrix&);
         Matrix& operator=(const Matrix&);
 
-        inline double& operator()(int y, int x) { return p[x][y]; }
+        inline double& operator()(int y, int x) { return p[y][x]; }
 
         Matrix& operator+=(const Matrix&);
         Matrix& operator-=(const Matrix&);

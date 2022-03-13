@@ -83,29 +83,29 @@ void Message::debug() {
     std::cout << "=== Message Debug ===" << std::endl;
     std::cout << "Speed = " << _acceleration << std::endl;
     std::cout << "True Position = " << _true_position << std::endl;
-    std::cout << "Acceleration = " << _acceleration << std::endl;
+    std::cout << "Acceleration = " << _velocity << std::endl;
     std::cout << "Direction = " << _direction << std::endl;
 }
 
 void Message::fromState(Matrix state) {
-    double _direction_values[3][1] = { {state(0, 0)}, {state(0, 1)}, {state(0, 2)} };
-    _direction = Matrix(_direction_values[0], 3, 1);
+    double _true_position_values[3][1] = { {state(0, 0)}, {state(1, 0)}, {state(2, 0)} };
+    _true_position = Matrix(_true_position_values[0], 3, 1);
 
-    double _velocity_values[3][1] = { {state(0, 3)}, {state(0, 4)}, {state(0, 5)} };
+    double _velocity_values[3][1] = { {state(3, 0)}, {state(4, 0)}, {state(5, 0)} };
     _velocity = Matrix(_velocity_values[0], 3, 1);
 
-    double _true_position_values[3][1] = { {state(0, 6)}, {state(0, 7)}, {state(0, 8)} };
-    _true_position = Matrix(_true_position_values[0], 3, 1);
+    double _direction_values[3][1] = { {state(6, 0)}, {state(7, 0)}, {state(8, 0)} };
+    _direction = Matrix(_direction_values[0], 3, 1);
 }
 
 Matrix Message::getStateMatrix() {
     // From euler angles to rotation matrix
     double c1 = cos(_direction(0, 0));
-    double c2 = cos(_direction(0, 1));
-    double c3 = cos(_direction(0, 2));
+    double c2 = cos(_direction(1, 0));
+    double c3 = cos(_direction(2, 0));
     double s1 = sin(_direction(0, 0));
-    double s2 = sin(_direction(0, 1));
-    double s3 = sin(_direction(0, 2));
+    double s2 = sin(_direction(1, 0));
+    double s3 = sin(_direction(2, 0));
 
     double rotation_values[3][3] = {
         {c2 * c3, -c2 * s3, s2},
@@ -115,27 +115,27 @@ Matrix Message::getStateMatrix() {
 
     Matrix rotation = Matrix(rotation_values[0], 3, 3);
     rotation = rotation.transpose();
-    std::cout << "Rotation Matrix = " << rotation << std::endl;
+    // std::cout << "Rotation Matrix = " << rotation << std::endl;
 
     // Vector unit
-    double unit_values[3][1] = { {1}, {0}, {0} };
-    Matrix unit = Matrix(unit_values[0], 3, 1);
-    std::cout << "Unit Vector = " << unit << std::endl;
+    double acceleration_values[3][1] = { {_acceleration}, {_acceleration}, {_acceleration} };
+    Matrix acceleration_vector = Matrix(acceleration_values[0], 3, 1);
+    // std::cout << "Acceleration Vector = " << acceleration_vector << std::endl;
 
     // Update acceleration vector with rotation matrix
-    Matrix acceleration_rotated = (rotation * unit) * _acceleration;
-    std::cout << "Acceleration = " << acceleration_rotated << std::endl;
+    Matrix acceleration_rotated = (rotation * acceleration_vector);
+    // std::cout << "Acceleration = " << acceleration_rotated << std::endl;
     
     double tmp_arr[9][1] = {
         {_true_position(0, 0)},
-        {_true_position(0, 1)},
-        {_true_position(0, 2)},
+        {_true_position(1, 0)},
+        {_true_position(2, 0)},
         {_velocity(0, 0)},
-        {_velocity(0, 1)},
-        {_velocity(0, 2)},
+        {_velocity(1, 0)},
+        {_velocity(2, 0)},
         {acceleration_rotated(0, 0)},
-        {acceleration_rotated(0, 1)},
-        {acceleration_rotated(0, 2)}
+        {acceleration_rotated(1, 0)},
+        {acceleration_rotated(2, 0)}
         };
     return Matrix(tmp_arr[0], 9, 1);
 }

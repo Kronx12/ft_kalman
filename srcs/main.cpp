@@ -21,7 +21,20 @@ int main(int ac, char **av) {
     int receive_length;
     Message message = Message();
     std::string buffer_string;
-    KalmanFilter kalman_filter = KalmanFilter();
+
+    double values[9][1] = {
+        {0},
+        {0},
+        {0},
+        {0},
+        {0},
+        {0},
+        {0},
+        {0},
+        {0}
+    };
+    Matrix m(values[0], 9, 1);
+    KalmanFilter kalman_filter = KalmanFilter(m, 0.01);
 
     // KalmanFilter *filter = new KalmanFilter();
     // delete filter;
@@ -94,12 +107,18 @@ int main(int ac, char **av) {
 
                 message.debug();
 
-                Matrix result = kalman_filter.predict(message.getStateMatrix(), 0.01);
-                std::cout << "Predicted State : " << result << std::endl;
-                message.fromState(result);
+                if (!kalman_filter.uptodate)
+                    kalman_filter.forceState(message.getStateMatrix());
+
+                kalman_filter.update(message.getStateMatrix());
+
+                Matrix state = kalman_filter.predict();
+                std::cout << "Predicted State : " << state << std::endl;
+                message.fromState(state);
 
                 std::stringstream ss;
-                ss << message.getTruePosition()(0, 0) << " " << message.getTruePosition()(0, 1) << " " << message.getTruePosition()(0, 2);
+                ss << message.getTruePosition()(0, 0) << " " << message.getTruePosition()(1, 0) << " " << message.getTruePosition()(2, 0);
+                std::cout << "Sending : " << ss.str() << std::endl;
                 sendto(sockfd, ss.str().c_str(), strlen(ss.str().c_str()), 0, (const sockaddr *)NULL, sizeof(server_address));
             }
         } while (buffer_string.find("MSG_END") != std::string::npos);
