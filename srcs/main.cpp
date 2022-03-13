@@ -94,7 +94,9 @@ int main(int ac, char **av) {
 
                 message.debug();
 
-                kalman_filter.predict(message.getStateMatrix(), 0.01);
+                Matrix result = kalman_filter.predict(message.getStateMatrix(), 0.01);
+                std::cout << "Predicted State : " << result << std::endl;
+                message.fromState(result);
 
                 std::stringstream ss;
                 ss << message.getTruePosition()(0, 0) << " " << message.getTruePosition()(0, 1) << " " << message.getTruePosition()(0, 2);

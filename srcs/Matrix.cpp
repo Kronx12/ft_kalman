@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/13 07:39:51 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/13 08:34:52 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/13 09:08:37 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ Matrix::Matrix(int rows, int cols) : rows_(rows), cols_(cols)
 Matrix::Matrix(double *a, int rows, int cols) : rows_(rows), cols_(cols)
 {
     allocSpace();
-	std::cout << rows << ", " << cols << std::endl;
     for (int i = 0; i < rows_; i++) {
         for (int j = 0; j < cols_; j++) {
             p[i][j] = a[i * cols + j];

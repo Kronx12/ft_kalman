@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 20:11:12 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/13 08:15:27 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/13 09:01:50 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ class Message {
         void parseTruePosition(std::string str);
         void parseVelocity(std::string str);
         void parseDirection(std::string str);
+        
+        void fromState(Matrix state);
         
         Matrix getStateMatrix();
 

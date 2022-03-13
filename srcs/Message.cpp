@@ -87,6 +87,17 @@ void Message::debug() {
     std::cout << "Direction = " << _direction << std::endl;
 }
 
+void Message::fromState(Matrix state) {
+    double _direction_values[3][1] = { {state(0, 0)}, {state(0, 1)}, {state(0, 2)} };
+    _direction = Matrix(_direction_values[0], 3, 1);
+
+    double _velocity_values[3][1] = { {state(0, 3)}, {state(0, 4)}, {state(0, 5)} };
+    _velocity = Matrix(_velocity_values[0], 3, 1);
+
+    double _true_position_values[3][1] = { {state(0, 6)}, {state(0, 7)}, {state(0, 8)} };
+    _true_position = Matrix(_true_position_values[0], 3, 1);
+}
+
 Matrix Message::getStateMatrix() {
     // From euler angles to rotation matrix
     double c1 = cos(_direction(0, 0));
@@ -107,8 +118,8 @@ Matrix Message::getStateMatrix() {
     std::cout << "Rotation Matrix = " << rotation << std::endl;
 
     // Vector unit
-    double unit_values[3][3] = { {1}, {0}, {0} };
-    Matrix unit = Matrix(unit_values[0], 3, 3);
+    double unit_values[3][1] = { {1}, {0}, {0} };
+    Matrix unit = Matrix(unit_values[0], 3, 1);
     std::cout << "Unit Vector = " << unit << std::endl;
 
     // Update acceleration vector with rotation matrix

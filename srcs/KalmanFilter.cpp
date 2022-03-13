@@ -44,13 +44,9 @@ Matrix KalmanFilter::predict(Matrix state, double dt) {
 		};
 	_F = Matrix(f_values[0], 9, 9);
 
-	std::cout << "F : " << _F << std::endl;
-	std::cout << "State : " << state << std::endl;
-
 	_X_Current = _F * state;
-	std::cout << "Dot : " << _X_Current << std::endl;
 
-	return Matrix();
+	return _X_Current;
 }
 
 // Destructor
