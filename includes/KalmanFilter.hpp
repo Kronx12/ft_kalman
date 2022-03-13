@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/11 13:39:41 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/13 17:57:54 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/13 21:35:32 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <cmath>
 
+#include "matplotlibcpp.hpp"
 #include "Matrix.hpp"
 #include "Message.hpp"
 
@@ -23,11 +24,24 @@ class KalmanFilter {
 		KalmanFilter(Matrix initial_state, double dt);
 		~KalmanFilter();
 
+		void save();
+		int show(std::vector<double> a, std::vector<double> b, std::string name);
 		Matrix predict();
 		Matrix update(Matrix z);
 		void forceState(Matrix state);	
 		
 		int uptodate = 0;
+		
+		std::vector<double> Px;
+		std::vector<double> Py;
+		std::vector<double> Pz;
+		std::vector<double> Vx;
+		std::vector<double> Vy;
+		std::vector<double> Vz;
+		std::vector<double> Ax;
+		std::vector<double> Ay;
+		std::vector<double> Az;
+		std::vector<double> T;
 	private:
 		Matrix _X_Current;
 		Matrix _P_Current;

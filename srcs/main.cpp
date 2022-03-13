@@ -71,8 +71,8 @@ int main(int ac, char **av) {
     bzero(buffer, buff_len);
     receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
 
-    int simulation_duration = 1000;
-    for (int i = 0; i < simulation_duration * 10; i++) {
+    int simulation_duration = 80;
+    for (int i = 0; i < simulation_duration; i++) {
         std::cout << "I = " << i << std::endl;
         do {
             bzero(buffer, buff_len);
@@ -124,6 +124,7 @@ int main(int ac, char **av) {
         } while (buffer_string.find("MSG_END") != std::string::npos);
     }
 
+    kalman_filter.show(kalman_filter.Px, kalman_filter.Py, "XY.png");
     close(sockfd);
     return(0);
 }
