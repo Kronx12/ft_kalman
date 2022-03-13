@@ -58,9 +58,6 @@ int main(int ac, char **av) {
     bzero(buffer, buff_len);
     receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
 
-    std::vector<double> *x_history = new std::vector<double>();
-    std::vector<double> *y_history = new std::vector<double>();
-
     int simulation_duration = 1000;
     for (int i = 0; i < simulation_duration * 10; i++) {
         std::cout << "I = " << i << std::endl;
@@ -99,11 +96,8 @@ int main(int ac, char **av) {
 
                 kalman_filter.predict(message.getStateMatrix(), 0.01);
 
-                x_history->push_back(message.getTruePosition()->getX());
-                y_history->push_back(message.getTruePosition()->getZ());
-
                 std::stringstream ss;
-                ss << message.getTruePosition()->getX() << " " << message.getTruePosition()->getY() << " " << message.getTruePosition()->getZ();
+                ss << message.getTruePosition()(0, 0) << " " << message.getTruePosition()(0, 1) << " " << message.getTruePosition()(0, 2);
                 sendto(sockfd, ss.str().c_str(), strlen(ss.str().c_str()), 0, (const sockaddr *)NULL, sizeof(server_address));
             }
         } while (buffer_string.find("MSG_END") != std::string::npos);

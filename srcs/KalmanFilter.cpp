@@ -6,53 +6,51 @@
 
 // Basic constructor
 KalmanFilter::KalmanFilter() {
-	_X_Current = new Matrix(3, 3);
-	_P_Current = Matrix::identity(3, 3, 1);
+	_X_Current = Matrix(3, 3);
+	_P_Current = Matrix::createIdentity(3);
 
-	_X_Previous = new Matrix(3, 3);
-	_P_Previous = Matrix::identity(3, 3, 1);
+	_X_Previous = Matrix(3, 3);
+	_P_Previous = Matrix::createIdentity(3);
 	
-	_A = Matrix::identity(3, 3, 1);
+	_A = Matrix::createIdentity(3);
 
-	_Q = Matrix::identity(3, 3, 1);
-	_Q->set(0, 0, 0.001);
-	_Q->set(1, 1, 0.01);
-	_Q->set(2, 2, 0.1);
+	_Q = Matrix::createIdentity(3);
+	_Q(0, 0) = 0.001;
+	_Q(1, 1) = 0.01;
+	_Q(2, 2) = 0.1;
 
-	_w = Matrix::identity(3, 3, 1);
-	_w->set(0, 0, 0.001);
-	_w->set(1, 1, 0.01);
-	_w->set(2, 2, 0.1); 
+	_w = Matrix::createIdentity(3);
+	_w(0, 0) = 0.001;
+	_w(1, 1) = 0.01;
+	_w(2, 2) = 0.1; 
 }
 
-Matrix *KalmanFilter::predict(Matrix *state, double dt) {
+Matrix KalmanFilter::predict(Matrix state, double dt) {
 
 	_X_Previous = _X_Current;
 	_P_Previous = _P_Current;
 
-	_F = Matrix::identity(9, 9, 1);
-	_F->set(3, 0, dt);
-	_F->set(4, 1, dt);
-	_F->set(5, 2, dt);
-	_F->set(6, 3, dt);
-	_F->set(7, 4, dt);
-	_F->set(8, 5, dt);
-	_F->set(6, 0, dt * dt / 2);
-	_F->set(7, 1, dt * dt / 2);
-	_F->set(8, 2, dt * dt / 2);
 
-	std::cout << "F : " << std::endl;
-	std::cout << _F->getHeight() << " | " << _F->getWidth() << std::endl;
-	_F->print();
-	std::cout << "State : " << std::endl;
-	std::cout << state->getHeight() << " | " << state->getWidth() << std::endl;
-	state->print();
+	double f_values[9][9] = {
+		{1, 0, 0, dt, 0, 0, dt * dt * 0.5, 0, 0},
+		{0, 1, 0, 0, dt, 0, 0, dt * dt * 0.5, 0},
+		{0, 0, 1, 0, 0, dt, 0, 0, dt * dt * 0.5},
+		{0, 0, 0, 1, 0, 0, dt, 0, 0},
+		{0, 0, 0, 0, 1, 0, 0, dt, 0},
+		{0, 0, 0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 1, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 1, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 1}
+		};
+	_F = Matrix(f_values[0], 9, 9);
 
-	_X_Current = _F->dot(*state);
+	std::cout << "F : " << _F << std::endl;
+	std::cout << "State : " << state << std::endl;
 
-	_X_Current->print();
-	
-	return nullptr;
+	_X_Current = _F * state;
+	std::cout << "Dot : " << _X_Current << std::endl;
+
+	return Matrix();
 }
 
 // Destructor

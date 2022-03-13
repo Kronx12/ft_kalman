@@ -3,56 +3,69 @@
 /*                                                        :::      ::::::::   */
 /*   Matrix.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thallard <thallard@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/03/02 06:13:32 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/02 15:14:111 by thallard         ###   ########lyon.fr   */
+/*   Created: 2022/03/13 07:39:36 by gbaud             #+#    #+#             */
+/*   Updated: 2022/03/13 08:36:47 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#ifndef MATRIX_HPP
+#define MATRIX_HPP
 
-#include <stdio.h>
 #include <iostream>
-#include <array>
-#include <exception>
 
 class Matrix {
-    private:
-        unsigned char x_size;
-        unsigned char y_size;
-        double* data;
-
     public:
-        Matrix(int x, int y);
+        Matrix(int, int);
+        Matrix(double*, int, int);
+        Matrix();
         ~Matrix();
-        Matrix(Matrix const &);
-        // Utilities
-        Matrix const &clone(Matrix const &) const;
+        Matrix(const Matrix&);
+        Matrix& operator=(const Matrix&);
 
-        // Static functions
-        static Matrix *identity(int w, int h, double value);
+        inline double& operator()(int y, int x) { return p[x][y]; }
 
-        bool is_square() const;
-        bool is_identity() const;
+        Matrix& operator+=(const Matrix&);
+        Matrix& operator-=(const Matrix&);
+        Matrix& operator*=(const Matrix&);
+        Matrix& operator*=(double);
+        Matrix& operator/=(double);
+        Matrix  operator^(int);
+        
+        friend std::ostream& operator<<(std::ostream&, const Matrix&);
+        friend std::istream& operator>>(std::istream&, Matrix&);
 
-        double get(int x, int y) const;
-        void set(int x, int y, double value);
+        void swapRows(int, int);
+        Matrix transpose();
 
-        int getWidth() const;
-        int getHeight() const;
+        static Matrix createIdentity(int);
+        static Matrix solve(Matrix, Matrix);
+        static Matrix bandSolve(Matrix, Matrix, int);
 
-        void print() const;
+        // functions on vectors
+        static double dotProduct(Matrix, Matrix);
 
-        // Operators and functions
-        Matrix *add(Matrix &);
-        Matrix *dot(Matrix &);
-        Matrix *dot(double scalar);
-		Matrix *transpose();
-        Matrix *rrf();
-        Matrix *inverse();
+        // functions on augmented matrices
+        static Matrix augment(Matrix, Matrix);
+        Matrix gaussianEliminate();
+        Matrix rowReduceFromGaussian();
+        void readSolutionsFromRREF(std::ostream& os);
+        Matrix inverse();
 
-		Matrix *operator+(const Matrix &rhs);
+    private:
+        int rows_, cols_;
+        double **p;
+
+        void allocSpace();
+        Matrix expHelper(const Matrix&, int);
 };
 
-struct InvalidSizeError : public std::exception { const char *what() const throw () { return "Invalid size"; } };
+Matrix operator+(const Matrix&, const Matrix&);
+Matrix operator-(const Matrix&, const Matrix&);
+Matrix operator*(const Matrix&, const Matrix&);
+Matrix operator*(const Matrix&, double);
+Matrix operator*(double, const Matrix&);
+Matrix operator/(const Matrix&, double);
+
+#endif

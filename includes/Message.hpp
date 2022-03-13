@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 20:11:12 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/12 01:10:16 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/13 08:15:27 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@
 #include <regex>
 #include <cmath>
 
-#include "Vector3D.hpp"
 #include "Timestamp.hpp"
+#include "Matrix.hpp"
 
 class Message {
     public:
@@ -26,28 +26,28 @@ class Message {
         
         double      getAcceleration();
         Timestamp   getAccelerationTimestamp();
-        Vector3D    *getTruePosition();
+        Matrix      getTruePosition();
         Timestamp   getTruePositionTimestamp();
-        Vector3D    *getVelocity();
+        Matrix      getVelocity();
         Timestamp   getVelocityTimestamp();
-        Vector3D    *getDirection();
+        Matrix      getDirection();
         Timestamp   getDirectionTimestamp();
         
         void setAccelerationTimestamp(Timestamp timestamp);
         void setAcceleration(double acceleration);
         void setTruePositionTimestamp(Timestamp timestamp);
-        void setTruePosition(Vector3D vector);
+        void setTruePosition(Matrix m);
         void setVelocityTimestamp(Timestamp timestamp);
-        void setVelocity(Vector3D vector);
+        void setVelocity(Matrix m);
         void setDirectionTimestamp(Timestamp timestamp);
-        void setDirection(Vector3D vector);
+        void setDirection(Matrix m);
 
         void parseAcceleration(std::string str);
         void parseTruePosition(std::string str);
         void parseVelocity(std::string str);
         void parseDirection(std::string str);
         
-        Matrix *getStateMatrix();
+        Matrix getStateMatrix();
 
         void debug();
 
@@ -58,13 +58,13 @@ class Message {
         double _acceleration;
 
         Timestamp _true_position_timestamp;
-        Vector3D _true_position;
+        Matrix _true_position;
 
         Timestamp _velocity_timestamp;
-        Vector3D _velocity;
+        Matrix _velocity;
 
         Timestamp _direction_timestamp;
-        Vector3D _direction;
+        Matrix _direction;
 };
 
 #endif // !MESSAGE_HPP

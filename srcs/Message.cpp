@@ -12,17 +12,17 @@
 
 #include "Message.hpp"
 
-Message::Message() : _acceleration(0), _true_position(Vector3D()), _velocity(Vector3D()), _direction(Vector3D()) {}
+Message::Message() : _acceleration(0), _true_position(Matrix(3, 0)), _velocity(Matrix(3, 0)), _direction(Matrix(3, 0)) {}
 
 double Message::getAcceleration() { return _acceleration; }
-Vector3D *Message::getTruePosition() { return &_true_position; }
-Vector3D *Message::getVelocity() { return &_velocity; }
-Vector3D *Message::getDirection() { return &_direction; }
+Matrix Message::getTruePosition() { return _true_position; }
+Matrix Message::getVelocity() { return _velocity; }
+Matrix Message::getDirection() { return _direction; }
         
 void Message::setAcceleration(double acceleration) { _acceleration = acceleration; }
-void Message::setTruePosition(Vector3D vector) { _true_position = vector; }
-void Message::setVelocity(Vector3D vector) { _velocity = vector; }
-void Message::setDirection(Vector3D vector) { _direction = vector; }
+void Message::setTruePosition(Matrix m) { _true_position = m; }
+void Message::setVelocity(Matrix m) { _velocity = m; }
+void Message::setDirection(Matrix m) { _direction = m; }
 
 void Message::parseAcceleration(std::string str) {
     // Parse speed
@@ -41,7 +41,12 @@ void Message::parseTruePosition(std::string str) {
     std::string::const_iterator start(str.cbegin());
     std::regex_search(start, str.cend(), res, term_pattern);
     _true_position_timestamp = Timestamp(res[1]);
-    _true_position = Vector3D(std::stod(res[2]), std::stod(res[3]), std::stod(res[4]));
+    double tmp_arr[3][1] = {
+        {std::stod(res[2])},
+        {std::stod(res[3])},
+        {std::stod(res[4])}
+        };
+    _true_position = Matrix(tmp_arr[0], 3, 1);
 }
 
 void Message::parseVelocity(std::string str) {
@@ -51,7 +56,12 @@ void Message::parseVelocity(std::string str) {
     std::string::const_iterator start(str.cbegin());
     std::regex_search(start, str.cend(), res, term_pattern);
     _velocity_timestamp = Timestamp(res[1]);
-    _velocity = Vector3D(std::stod(res[2]) * 1000 / 3600, std::stod(res[3]) * 1000 / 3600, std::stod(res[4]) * 1000 / 3600);
+    double tmp_arr[3][1] = {
+        {std::stod(res[2]) * 1000 / 3600},
+        {std::stod(res[3]) * 1000 / 3600},
+        {std::stod(res[4]) * 1000 / 3600}
+        };
+    _velocity = Matrix(tmp_arr[0], 3, 1);
 }
 
 void Message::parseDirection(std::string str) {
@@ -61,67 +71,62 @@ void Message::parseDirection(std::string str) {
     std::string::const_iterator start(str.cbegin());
     std::regex_search(start, str.cend(), res, term_pattern);
     _direction_timestamp = Timestamp(res[1]);
-    _direction = Vector3D(std::stod(res[2]), std::stod(res[3]), std::stod(res[4]));
+    double tmp_arr[3][1] = {
+        {std::stod(res[2])},
+        {std::stod(res[3])},
+        {std::stod(res[4])}
+        };
+    _direction = Matrix(tmp_arr[0], 3, 1);
 }
 
 void Message::debug() {
     std::cout << "=== Message Debug ===" << std::endl;
     std::cout << "Speed = " << _acceleration << std::endl;
-    std::cout << "True Position = ";
-    _true_position.debug();
-    std::cout << "Acceleration = ";
-    _velocity.debug();
-    std::cout << "Direction = ";
-    _direction.debug();
+    std::cout << "True Position = " << _true_position << std::endl;
+    std::cout << "Acceleration = " << _acceleration << std::endl;
+    std::cout << "Direction = " << _direction << std::endl;
 }
 
-Matrix *Message::getStateMatrix() {
-    Matrix *matrix = new Matrix(9, 1);
-    matrix->set(0, 0, _true_position.getX());
-    matrix->set(1, 0, _true_position.getY());
-    matrix->set(2, 0, _true_position.getZ());
-    matrix->set(3, 0, _velocity.getX());
-    matrix->set(4, 0, _velocity.getY());
-    matrix->set(5, 0, _velocity.getZ());
-    
-    double x = _direction.getX();
-    double y = _direction.getY();
-    double z = _direction.getZ();
-
+Matrix Message::getStateMatrix() {
     // From euler angles to rotation matrix
-    Matrix *rotation = new Matrix(3, 3);
-    
-    double c1 = cos(x);
-    double c2 = cos(y);
-    double c3 = cos(z);
-    double s1 = sin(x);
-    double s2 = sin(y);
-    double s3 = sin(z);
-    rotation->set(0, 0, c2 * c3);
-    rotation->set(0, 1, -c2 * s3);
-    rotation->set(0, 2, s2);
-    rotation->set(1, 0, c1 * s3 + c3 * s1 * s2);
-    rotation->set(1, 1, c1 * c3 - s1 * s2 * s3);
-    rotation->set(1, 2, -c2 * s1);
-    rotation->set(2, 0, s1 * s3 - c1 * c3 * s2);
-    rotation->set(2, 1, c3 * s1 + c1 * s2 * s3);
-    rotation->set(2, 2, c1 * c2);
-    
-    // Si ca marche pas faut transpose la matrice
+    double c1 = cos(_direction(0, 0));
+    double c2 = cos(_direction(0, 1));
+    double c3 = cos(_direction(0, 2));
+    double s1 = sin(_direction(0, 0));
+    double s2 = sin(_direction(0, 1));
+    double s3 = sin(_direction(0, 2));
 
-    // Make acceleration vector
-    Matrix *acceleration = new Matrix(3, 1);
-    acceleration->set(0, 0, _acceleration);
-    acceleration->set(1, 0, _acceleration);
-    acceleration->set(2, 0, _acceleration);
+    double rotation_values[3][3] = {
+        {c2 * c3, -c2 * s3, s2},
+        {c1 * s3 + c3 * s1 * s2, c1 * c3 - s1 * s2 * s3, -c2 * s1},
+        {s1 * s3 - c1 * c3 * s2, c3 * s1 + c1 * s2 * s3, c1 * c2}
+        };
+
+    Matrix rotation = Matrix(rotation_values[0], 3, 3);
+    rotation = rotation.transpose();
+    std::cout << "Rotation Matrix = " << rotation << std::endl;
+
+    // Vector unit
+    double unit_values[3][3] = { {1}, {0}, {0} };
+    Matrix unit = Matrix(unit_values[0], 3, 3);
+    std::cout << "Unit Vector = " << unit << std::endl;
 
     // Update acceleration vector with rotation matrix
-    Matrix *acceleration_rotated = rotation->dot(*acceleration);
-    matrix->set(6, 0, acceleration_rotated->get(0, 0));
-    matrix->set(7, 0, acceleration_rotated->get(1, 0));
-    matrix->set(8, 0, acceleration_rotated->get(2, 0));
+    Matrix acceleration_rotated = (rotation * unit) * _acceleration;
+    std::cout << "Acceleration = " << acceleration_rotated << std::endl;
     
-    return matrix;
+    double tmp_arr[9][1] = {
+        {_true_position(0, 0)},
+        {_true_position(0, 1)},
+        {_true_position(0, 2)},
+        {_velocity(0, 0)},
+        {_velocity(0, 1)},
+        {_velocity(0, 2)},
+        {acceleration_rotated(0, 0)},
+        {acceleration_rotated(0, 1)},
+        {acceleration_rotated(0, 2)}
+        };
+    return Matrix(tmp_arr[0], 9, 1);
 }
 
 Message::~Message() {}
