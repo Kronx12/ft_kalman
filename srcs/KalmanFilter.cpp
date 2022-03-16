@@ -64,20 +64,29 @@ void KalmanFilter::save() {
 	T.push_back(0.01);
 }
 
-int KalmanFilter::show(std::vector<double> a, std::vector<double> b, std::string name) {
-    // Set the size of output image = 1200x780 pixels
-    matplotlibcpp::figure_size(1200, 780);
+int KalmanFilter::show() {
+	// Plot 3d graph Px Py Pz using matplotlib
+	matplotlibcpp::plot3(Px, Py, Pz);
+    matplotlibcpp::show();
 
-    // Plot line from given x and y data. Color is selected automatically.
-    matplotlibcpp::plot(a, b);
+	matplotlibcpp::plot3(Vx, Vy, Vz);
+    matplotlibcpp::show();
 
-    // Add graph title
-    matplotlibcpp::title(name);
+	matplotlibcpp::plot3(Ax, Ay, Az);
+	matplotlibcpp::show();
 
-    // save figure
-    const char *filename = name.c_str();
-    std::cout << "Saving result to " << filename << std::endl;;
-    matplotlibcpp::save(name);
+	matplotlibcpp::plot(T, Ax);
+	matplotlibcpp::show();
+
+	matplotlibcpp::plot(T, Ay);
+	matplotlibcpp::show();
+
+	matplotlibcpp::plot(T, Az);
+	matplotlibcpp::show();
+
+	// Plot 2d graph Px Py Pz using matplotlib on the same graph
+	matplotlibcpp::plot(Px, Py);
+	matplotlibcpp::show();
 	return 0;
 }
 

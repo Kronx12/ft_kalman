@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/11 13:39:41 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/13 21:35:32 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/14 07:45:53 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class KalmanFilter {
 		~KalmanFilter();
 
 		void save();
-		int show(std::vector<double> a, std::vector<double> b, std::string name);
+		int show();
 		Matrix predict();
 		Matrix update(Matrix z);
 		void forceState(Matrix state);	

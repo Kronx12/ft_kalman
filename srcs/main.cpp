@@ -71,7 +71,7 @@ int main(int ac, char **av) {
     bzero(buffer, buff_len);
     receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
 
-    int simulation_duration = 80;
+    int simulation_duration = 10;
     for (int i = 0; i < simulation_duration; i++) {
         std::cout << "I = " << i << std::endl;
         do {
@@ -114,7 +114,7 @@ int main(int ac, char **av) {
 
                 Matrix state = kalman_filter.predict();
                 std::cout << "Predicted State : " << state << std::endl;
-                message.fromState(state);
+                // message.fromState(state);
 
                 std::stringstream ss;
                 ss << message.getTruePosition()(0, 0) << " " << message.getTruePosition()(1, 0) << " " << message.getTruePosition()(2, 0);
@@ -124,7 +124,7 @@ int main(int ac, char **av) {
         } while (buffer_string.find("MSG_END") != std::string::npos);
     }
 
-    kalman_filter.show(kalman_filter.Px, kalman_filter.Py, "XY.png");
+    kalman_filter.show();
     close(sockfd);
     return(0);
 }
