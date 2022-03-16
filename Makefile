@@ -9,7 +9,7 @@ INCS=$(wildcard ./$(INCS_DIR)/*.hpp)
 OBJS:=$(SRCS:.cpp=.o)
 
 FSANITIZE=-fsanitize=address
-FLAGS=-Wall -Wextra -Werror -g $(FSANITIZE) -I$(INCS_DIR) -std=c++17 -I/usr/include/python3.8
+FLAGS=-Wall -Wextra -Werror -g $(FSANITIZE) -I$(INCS_DIR) -std=c++17
 
 %.o:%.cpp
 	$(CC) $(FLAGS) -c $< -o $@ -fsanitize=address
@@ -19,7 +19,7 @@ all: $(NAME)
 $(OBJS): $(INCS)
 
 $(NAME): $(OBJS) $(INCS)
-	$(CC) $(FLAGS) $(OBJS) -o $(NAME) -lpython3.8
+	$(CC) $(FLAGS) $(OBJS) -o $(NAME)
 
 re: fclean all
 

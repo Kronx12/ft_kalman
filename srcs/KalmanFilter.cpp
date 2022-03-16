@@ -64,33 +64,10 @@ void KalmanFilter::save() {
 	T.push_back(0.01);
 }
 
-int KalmanFilter::show() {
-	// Plot 3d graph Px Py Pz using matplotlib
-	matplotlibcpp::plot3(Px, Py, Pz);
-    matplotlibcpp::show();
-
-	matplotlibcpp::plot3(Vx, Vy, Vz);
-    matplotlibcpp::show();
-
-	matplotlibcpp::plot3(Ax, Ay, Az);
-	matplotlibcpp::show();
-
-	matplotlibcpp::plot(T, Ax);
-	matplotlibcpp::show();
-
-	matplotlibcpp::plot(T, Ay);
-	matplotlibcpp::show();
-
-	matplotlibcpp::plot(T, Az);
-	matplotlibcpp::show();
-
-	// Plot 2d graph Px Py Pz using matplotlib on the same graph
-	matplotlibcpp::plot(Px, Py);
-	matplotlibcpp::show();
-	return 0;
-}
-
 Matrix KalmanFilter::predict() {
+	// Make kalman filter
+	
+
 	_X_Current = _F * _X_Current;
 	save();
 

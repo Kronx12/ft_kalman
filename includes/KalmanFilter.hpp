@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/11 13:39:41 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/14 07:45:53 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/16 14:20:29 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 #include <cmath>
 
-#include "matplotlibcpp.hpp"
 #include "Matrix.hpp"
 #include "Message.hpp"
 
@@ -25,7 +24,6 @@ class KalmanFilter {
 		~KalmanFilter();
 
 		void save();
-		int show();
 		Matrix predict();
 		Matrix update(Matrix z);
 		void forceState(Matrix state);	
