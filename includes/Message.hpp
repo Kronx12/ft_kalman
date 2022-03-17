@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 20:11:12 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/13 09:01:50 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/17 08:48:12 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ class Message {
         void fromState(Matrix state);
         
         Matrix getStateMatrix();
+        std::string exportLocation();
 
         void debug();
 

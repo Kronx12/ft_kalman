@@ -140,4 +140,11 @@ Matrix Message::getStateMatrix() {
     return Matrix(tmp_arr[0], 9, 1);
 }
 
+std::string Message::exportLocation() {
+    std::stringstream ss;
+    
+    ss << _true_position(0, 0) << " " << _true_position(1, 0) << " " << _true_position(2, 0);
+    return ss.str();
+}
+
 Message::~Message() {}

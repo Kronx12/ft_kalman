@@ -12,114 +12,85 @@
 
 #include "global.hpp"
 
-int main(int ac, char **av) {
-    int port;
+int init_connection(int port) {
     int sockfd;
     struct sockaddr_in server_address;
-    int buff_len = 512;
-    char buffer[buff_len];
-    int receive_length;
-    Message message = Message();
-    std::string buffer_string;
-
-    double values[9][1] = {
-        {0},
-        {0},
-        {0},
-        {0},
-        {0},
-        {0},
-        {0},
-        {0},
-        {0}
-    };
-    Matrix m(values[0], 9, 1);
-    KalmanFilter kalman_filter = KalmanFilter(m, 0.01);
-
-    // KalmanFilter *filter = new KalmanFilter();
-    // delete filter;
-
-    if (ac != 2)
-        put_error("Usage: ./ft_kalman <PORT>");
     
-    if (!av[1][0])
-        put_error("Port must be a number !");
-    for (int i = 0; av[1][i]; i++)
-        if (!av[1][i])
-            put_error("Port must be a number !");
-    
-    port = atoi(av[1]);
     put_info("Port: %d\n", port);
-    
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = INADDR_ANY;
     server_address.sin_port = htons(port);
-    
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
         put_error("Socket creation error !");
     if (connect(sockfd, (struct sockaddr *)&server_address, sizeof(server_address)) < 0)
         put_error("Network connection error !");
+    return (sockfd);
+}
+
+std::string handle_message(int sockfd) {
+    char buffer[1024];
+
+    bzero(buffer, 1024);
+    recvfrom(sockfd, buffer, 1024, 0, (struct sockaddr *)NULL, NULL);
+    return (std::string(buffer));
+}
+
+void send_message(int sockfd, std::string message) {
+    std::cout << "Sending : " << message << std::endl;
+    if (sendto(sockfd, message.c_str(), message.length(), 0, NULL, sizeof(struct sockaddr_in)) < 0)
+        put_error("Network send error !");
+}
+
+int main(int ac, char **av) {
+    int sockfd;
+    std::string buffer;
+    Message message = Message();
     
-    char handshake[] = "READY";
-    sendto(sockfd, handshake, strlen(handshake), 0, (const sockaddr *)NULL, sizeof(server_address));
-    std::cout << "READY SENT !" << std::endl;
+    double values[9][1] = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0} };
+    Matrix m(values[0], 9, 1);
 
-    // Skip Raw Trajectory Generation. . .
-    bzero(buffer, buff_len);
-    receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
-    // Sending Info. . .
-    bzero(buffer, buff_len);
-    receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
+    KalmanFilter kalman_filter = KalmanFilter(m, 0.01);
 
-    int simulation_duration = 10;
-    for (int i = 0; i < simulation_duration; i++) {
-        std::cout << "I=" << i << std::endl;
-        bzero(buffer, buff_len);
-        receive_length = recvfrom(sockfd, buffer, buff_len, 0, (struct sockaddr *)NULL, NULL);
-        buffer_string = buffer;
+    if (ac != 2)
+        put_error("Usage: ./ft_kalman <PORT>");
+    if (atoi(av[1]) < 1024 || atoi(av[1]) > 65535)
+        put_error("Port must be between 1024 and 65535 !");
+    sockfd = init_connection(std::stoi(av[1]));
 
-        int debug = 0;
-        if (buffer_string.find("MSG_START") != std::string::npos) {
-            std::cout << ">> START <<" << std::endl;
-        } else if (buffer_string.find("TRUE POSITION") != std::string::npos) {
-            std::cout << ">> Update True Position <<" << std::endl;
-            if (debug)
-                std::cout << "True Position : " << buffer_string << std::endl;
-            message.parseTruePosition(buffer_string);
-        } else if (buffer_string.find("SPEED") != std::string::npos) {
-            std::cout << ">> Update Acceleration <<" << std::endl;
-            if (debug)
-                std::cout << "Acceleration : " << buffer_string << std::endl;
-            message.parseAcceleration(buffer_string);
-        } else if (buffer_string.find("ACCELERATION") != std::string::npos) {
-            std::cout << ">> Update Velociy <<" << std::endl;
-            if (debug)
-                std::cout << "Velociy : " << buffer_string << std::endl;
-            message.parseVelocity(buffer_string);
-        } else if (buffer_string.find("DIRECTION") != std::string::npos) {
-            std::cout << ">> Update Direction <<" << std::endl;
-            if (debug)
-                std::cout << "Direction : " << buffer_string << std::endl;
-            message.parseDirection(buffer_string);
-        } else if (buffer_string.find("MSG_END") != std::string::npos) {
-            std::cout << ">> END <<" << std::endl;
+    send_message(sockfd, "READY"); // Handshake
+    handle_message(sockfd); // Trajectory Generation. . .
+    handle_message(sockfd); // Trajectory Generated!\nSending Info. . .
+    for (int i = 0; i < 100; i++) {
+        buffer = handle_message(sockfd);
+        if (buffer.find("TRUE POSITION") != std::string::npos)
+            message.parseTruePosition(buffer);
+        else if (buffer.find("SPEED") != std::string::npos)
+            message.parseAcceleration(buffer);
+        else if (buffer.find("ACCELERATION") != std::string::npos)
+            message.parseVelocity(buffer);
+        else if (buffer.find("DIRECTION") != std::string::npos)
+            message.parseDirection(buffer);
+        else if (buffer.find("MSG_END") != std::string::npos) {
+            if (i == 6) {
+                std::cout << "====== Initial state ====== " << std::endl;
+                std::cout << "TRUE POSITION: " << message.getTruePosition() << std::endl;
+                std::cout << "SPEED: " << message.getAcceleration() << std::endl;
+                std::cout << "ACCELERATION: " << message.getVelocity() << std::endl;
+                std::cout << "DIRECTION: " << message.getDirection() << std::endl;
+                std::cout << "====== End state ====== " << std::endl;
+                // TODO Init filter here
 
-            message.debug();
+            } else { // Kalman filter
+                // TODO Update filter here
+                
+                if (!kalman_filter.uptodate)
+                    kalman_filter.forceState(message.getStateMatrix());
+                kalman_filter.update(message.getStateMatrix());
+                Matrix state = kalman_filter.predict();
+                message.fromState(state);
 
-            if (!kalman_filter.uptodate)
-                kalman_filter.forceState(message.getStateMatrix());
-
-            kalman_filter.update(message.getStateMatrix());
-
-            Matrix state = kalman_filter.predict();
-            std::cout << "Predicted State : " << state << std::endl;
-            message.fromState(state);
-
-            std::stringstream ss;
-            ss << message.getTruePosition()(0, 0) << " " << message.getTruePosition()(1, 0) << " " << message.getTruePosition()(2, 0);
-            std::cout << "Sending : " << ss.str() << std::endl;
-            int len = sendto(sockfd, ss.str().c_str(), strlen(ss.str().c_str()), 0, (const sockaddr *)NULL, sizeof(server_address));
-            std::cout << "Len = " << len << std::endl;
+                send_message(sockfd, message.exportLocation()); // Send location
+            }
         }
     }
     close(sockfd);
