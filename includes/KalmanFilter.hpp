@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/11 13:39:41 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/16 14:20:29 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/17 15:44:03 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ class KalmanFilter {
 		Matrix predict();
 		Matrix update(Matrix z);
 		void forceState(Matrix state);	
+		
+		Matrix getState();
 		
 		int uptodate = 0;
 		

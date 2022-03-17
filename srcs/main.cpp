@@ -45,11 +45,7 @@ int main(int ac, char **av) {
     int sockfd;
     std::string buffer;
     Message message = Message();
-    
-    double values[9][1] = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0} };
-    Matrix m(values[0], 9, 1);
-
-    KalmanFilter kalman_filter = KalmanFilter(m, 0.01);
+    KalmanFilter *kalman_filter = NULL;
 
     if (ac != 2)
         put_error("Usage: ./ft_kalman <PORT>");
@@ -60,39 +56,37 @@ int main(int ac, char **av) {
     send_message(sockfd, "READY"); // Handshake
     handle_message(sockfd); // Trajectory Generation. . .
     handle_message(sockfd); // Trajectory Generated!\nSending Info. . .
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1250; i++) {
         buffer = handle_message(sockfd);
-        if (buffer.find("TRUE POSITION") != std::string::npos)
+        std::cout << i << std::endl;
+        std::cout << buffer << std::endl;
+        if (buffer.find("TRUE POSITION") != std::string::npos) {
             message.parseTruePosition(buffer);
-        else if (buffer.find("SPEED") != std::string::npos)
+        } else if (buffer.find("SPEED") != std::string::npos) {
+            message.parseSpeed(buffer);
+        } else if (buffer.find("ACCELERATION") != std::string::npos) {
             message.parseAcceleration(buffer);
-        else if (buffer.find("ACCELERATION") != std::string::npos)
-            message.parseVelocity(buffer);
-        else if (buffer.find("DIRECTION") != std::string::npos)
+        } else if (buffer.find("DIRECTION") != std::string::npos) {
             message.parseDirection(buffer);
-        else if (buffer.find("MSG_END") != std::string::npos) {
-            if (i == 6) {
-                std::cout << "====== Initial state ====== " << std::endl;
-                std::cout << "TRUE POSITION: " << message.getTruePosition() << std::endl;
-                std::cout << "SPEED: " << message.getAcceleration() << std::endl;
-                std::cout << "ACCELERATION: " << message.getVelocity() << std::endl;
-                std::cout << "DIRECTION: " << message.getDirection() << std::endl;
-                std::cout << "====== End state ====== " << std::endl;
-                // TODO Init filter here
-
+        } else if (buffer.find("MSG_END") != std::string::npos) {
+            if (i == 5) {
+                message.setup();
+                kalman_filter = new KalmanFilter(message.getStateMatrix(), 0.01);
+                kalman_filter->predict();
+                // std::cout << "====== Initial state ====== " << std::endl;
+                // message.debug();
+                // std::cout << "====== End state ====== " << std::endl;
             } else { // Kalman filter
-                // TODO Update filter here
-                
-                if (!kalman_filter.uptodate)
-                    kalman_filter.forceState(message.getStateMatrix());
-                kalman_filter.update(message.getStateMatrix());
-                Matrix state = kalman_filter.predict();
-                message.fromState(state);
-
-                send_message(sockfd, message.exportLocation()); // Send location
+                message.update(0.01);
+                std::cout << message.getStateMatrix() << std::endl;
+                Matrix updated = kalman_filter->update(message.getStateMatrix());
+                // message.debug();
             }
+            send_message(sockfd, kalman_filter->getState().to_string()); // Send location
+            kalman_filter->predict();
         }
     }
+    delete kalman_filter;
     close(sockfd);
     return(0);
 }

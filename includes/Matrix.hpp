@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/13 07:39:36 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/13 17:54:01 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/17 14:05:18 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define MATRIX_HPP
 
 #include <iostream>
+#include <sstream>
 
 class Matrix {
     public:
@@ -52,6 +53,8 @@ class Matrix {
         Matrix rowReduceFromGaussian();
         void readSolutionsFromRREF(std::ostream& os);
         Matrix inverse();
+        
+        std::string to_string();
 
     private:
         int rows_, cols_;

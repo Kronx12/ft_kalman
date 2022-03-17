@@ -1,0 +1,19 @@
+BEGIN {
+    START
+    TP
+    S
+    A
+    D
+    END
+}
+
+0.01s {
+    START
+    A
+    D
+    END
+}
+
+3s {
+    TP
+}

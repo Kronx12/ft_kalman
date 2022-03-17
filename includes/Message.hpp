@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 20:11:12 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/17 08:48:12 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/17 14:05:24 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,48 +23,51 @@
 class Message {
     public:
         Message();
+        Message(Matrix inital_position, Matrix inital_speed, Matrix inital_acceleration, Matrix inital_direction);
         
-        double      getAcceleration();
-        Timestamp   getAccelerationTimestamp();
         Matrix      getTruePosition();
         Timestamp   getTruePositionTimestamp();
-        Matrix      getVelocity();
-        Timestamp   getVelocityTimestamp();
+        Matrix      getSpeed();
+        Timestamp   getSpeedTimestamp();
+        Matrix      getAcceleration();
+        Timestamp   getAccelerationTimestamp();
         Matrix      getDirection();
         Timestamp   getDirectionTimestamp();
         
-        void setAccelerationTimestamp(Timestamp timestamp);
-        void setAcceleration(double acceleration);
         void setTruePositionTimestamp(Timestamp timestamp);
         void setTruePosition(Matrix m);
-        void setVelocityTimestamp(Timestamp timestamp);
-        void setVelocity(Matrix m);
+        void setSpeedTimestamp(Timestamp timestamp);
+        void setSpeed(Matrix m);
+        void setAccelerationTimestamp(Timestamp timestamp);
+        void setAcceleration(Matrix acceleration);
         void setDirectionTimestamp(Timestamp timestamp);
         void setDirection(Matrix m);
 
-        void parseAcceleration(std::string str);
         void parseTruePosition(std::string str);
-        void parseVelocity(std::string str);
+        void parseSpeed(std::string str);
+        void parseAcceleration(std::string str);
         void parseDirection(std::string str);
         
-        void fromState(Matrix state);
-        
+        Matrix getRotationMatrix();
         Matrix getStateMatrix();
         std::string exportLocation();
+
+        void setup();
+        void update(double dt);
 
         void debug();
 
         ~Message();
         
     private:
-        Timestamp _acceleration_timestamp;
-        double _acceleration;
-
         Timestamp _true_position_timestamp;
         Matrix _true_position;
 
-        Timestamp _velocity_timestamp;
-        Matrix _velocity;
+        Timestamp _speed_timestamp;
+        Matrix _speed;
+        
+        Timestamp _acceleration_timestamp;
+        Matrix _acceleration;
 
         Timestamp _direction_timestamp;
         Matrix _direction;

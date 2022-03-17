@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/13 07:39:51 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/13 17:50:42 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/17 16:19:06 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -553,4 +553,11 @@ std::istream& operator>>(std::istream& is, Matrix& m)
         }
     }
     return is;
+}
+
+std::string Matrix::to_string() {
+    std::stringstream ss;
+
+    ss << p[0][0] << " " << p[1][0] << " " << p[2][0];
+    return ss.str();
 }
