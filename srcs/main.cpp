@@ -71,19 +71,20 @@ int main(int ac, char **av) {
         } else if (buffer.find("MSG_END") != std::string::npos) {
             if (i == 5) {
                 message.setup();
-                kalman_filter = new KalmanFilter(message.getStateMatrix(), 0.01);
-                kalman_filter->predict();
+                // kalman_filter = new KalmanFilter(message.getStateMatrix(), 0.01);
+                // kalman_filter->predict();
                 // std::cout << "====== Initial state ====== " << std::endl;
                 // message.debug();
                 // std::cout << "====== End state ====== " << std::endl;
             } else { // Kalman filter
                 message.update(0.01);
                 std::cout << message.getStateMatrix() << std::endl;
-                Matrix updated = kalman_filter->update(message.getStateMatrix());
+                // Matrix updated = kalman_filter->update(message.getStateMatrix());
                 // message.debug();
             }
-            send_message(sockfd, kalman_filter->getState().to_string()); // Send location
-            kalman_filter->predict();
+            send_message(sockfd, message.getStateMatrix().to_string()); // Send location
+            std::cout << message.getStateMatrix() << std::endl;
+            // kalman_filter->predict();
         }
     }
     delete kalman_filter;
