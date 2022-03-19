@@ -6,7 +6,7 @@
 /*   By: gbaud <gbaud@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/17 13:24:05 by gbaud             #+#    #+#             */
-/*   Updated: 2022/03/17 16:33:12 by gbaud            ###   ########lyon.fr   */
+/*   Updated: 2022/03/18 14:24:56 by gbaud            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,11 +113,11 @@ Matrix Message::getRotationMatrix() {
 }
 
 void Message::setup() {
-    _speed = getRotationMatrix() * _direction * _speed(0, 0);
+    _speed = getRotationMatrix() * _speed;
 }
 
 void Message::update(double dt) {
-    _speed = (_speed * getRotationMatrix() * _direction * dt); //+ (_acceleration * dt * dt * 0.5);
+    _speed = getRotationMatrix() * _speed + _acceleration * dt * dt * 0.5;
 }
 
 Matrix Message::getStateMatrix() {    

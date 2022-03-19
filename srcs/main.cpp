@@ -56,10 +56,10 @@ int main(int ac, char **av) {
     send_message(sockfd, "READY"); // Handshake
     handle_message(sockfd); // Trajectory Generation. . .
     handle_message(sockfd); // Trajectory Generated!\nSending Info. . .
-    for (int i = 0; i < 1250; i++) {
+    for (int i = 0; i < 1000; i++) {
         buffer = handle_message(sockfd);
-        std::cout << i << std::endl;
-        std::cout << buffer << std::endl;
+        std::cout << "i = " << i << std::endl;
+        // std::cout << buffer << std::endl;
         if (buffer.find("TRUE POSITION") != std::string::npos) {
             message.parseTruePosition(buffer);
         } else if (buffer.find("SPEED") != std::string::npos) {
