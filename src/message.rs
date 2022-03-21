@@ -22,7 +22,12 @@ impl Message {
     }
 
     pub fn fmt(&self) -> String {
-        format!("P(x,y,z) = {} A(x,y,z) = {} D(x,y,z) = {} S = {}", self.position, self.acceleration, self.direction, self.initial_speed)
+        format!("P(x,y,z) = {} A(x,y,z) = {} D(x,y,z) = {} S = {}",
+            self.position,
+            self.acceleration,
+            self.direction,
+            self.initial_speed
+        )
     }
 
     pub fn from_socket(socket: &UdpSocket) -> Message {

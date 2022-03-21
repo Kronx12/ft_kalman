@@ -10,5 +10,6 @@ pub fn recv_message(socket: &UdpSocket) -> String {
 
 pub fn send_location(v: Vector3<f32>, socket: &UdpSocket) {
     let msg = format!("{} {} {}", v[0], v[1], v[2]);
+    // println!("SEND LOCATION : {}", msg);
     socket.send(msg.as_bytes()).expect("couldn't send message");
 }
