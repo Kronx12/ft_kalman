@@ -1,14 +1,9 @@
-use crate::utils::send_location;
-
 use std::net::UdpSocket;
 use std::env;
-use nalgebra::{
-    Rotation3,
-    Vector3,
-};
 
 mod utils;
 mod message;
+mod kalman_filter;
 
 fn main() {
     // Extract the port from the command line arguments
@@ -29,29 +24,19 @@ fn main() {
     let handshake = "READY";
     socket.send(handshake.as_bytes()).expect("couldn't send message");
     
+    let mut filter = kalman_filter::KalmanFilter::default();
+
     // Receive a response from the server
     let mut i = 0;
-    let mut velocity = Vector3::new(0.0, 0.0, 0.0);
-    let mut position = Vector3::new(0.0, 0.0, 0.0);
     while i < 10000 {
         let mut message = message::Message::from_socket(&socket);
 
         if i == 0 {
-            velocity = Vector3::new(message.initial_speed / 3.6, 0.0, 0.0) + Rotation3::from_euler_angles(message.direction.x, message.direction.y, message.direction.z).transform_vector(&message.acceleration) * 0.01; // TODO: Fix this
-            position = message.position;
+            filter.setup(message, &socket);
         } else {
-            velocity += Rotation3::from_euler_angles(message.direction.x, message.direction.y, message.direction.z).transform_vector(&message.acceleration) * 0.01;
+            filter.update(message);
         }
-
-        if !(message.position.x == 0.0 && message.position.y == 0.0 && message.position.z == 0.0) {
-            position = message.position;
-            println!("I = {}", i);
-            println!("{}", message.fmt());
-        }
-
-
-        position += velocity * 0.01;
-        send_location(position, &socket);
+        filter.send(&socket);
         i += 1;
     }
 }

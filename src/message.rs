@@ -37,7 +37,7 @@ impl Message {
         while !(buf.contains("MSG_END")) {
             let splitted = buf.split("\n").collect::<Vec<&str>>();
 
-            if buf.contains("TRUE POSITION") {
+            if buf.contains("POSITION") {
                 msg.position = Vector3::new(
                     splitted[1].parse::<f32>().unwrap(), 
                     splitted[2].parse::<f32>().unwrap(), 
