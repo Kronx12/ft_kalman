@@ -30,7 +30,7 @@ impl KalmanFilter {
 
     pub fn setup(&mut self, message: Message, socket: &UdpSocket) {
         self.position = message.position;
-        self.velocity = Vector3::new(message.initial_speed / 3.6, 0.0, 0.0) + Rotation3::from_euler_angles(message.direction.x, message.direction.y, message.direction.z).transform_vector(&message.acceleration) * 0.01;
+        self.velocity = Vector3::new(message.initial_speed / 3.6, 0.0, 0.0) + Rotation3::from_euler_angles(message.direction.x, message.direction.y, message.direction.z) * message.acceleration * 0.01;
     }
 
     pub fn update(&mut self, message: Message) {
@@ -38,10 +38,8 @@ impl KalmanFilter {
         self.velocity_history.push(self.velocity);
         self.acceleration_history.push(message.acceleration);
 
-        self.velocity += Rotation3::from_euler_angles(message.direction.x, message.direction.y, message.direction.z).transform_vector(&message.acceleration) * 0.01;
-
-        if !(message.position.x == 0.0 && message.position.y == 0.0 && message.position.z == 0.0) { self.position = message.position; } // TODO: Bad system used here
-
+        self.velocity += Rotation3::from_euler_angles(message.direction.x, message.direction.y, message.direction.z) * message.acceleration * 0.01;
+        // if message.position_updated { self.position = message.position; }
         self.position += self.velocity * 0.01;
     }
 

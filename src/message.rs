@@ -5,6 +5,7 @@ use nalgebra::{
 };
 
 pub struct Message {
+    pub position_updated: bool,
     pub position: Vector3<f32>,
     pub acceleration: Vector3<f32>,
     pub direction: Vector3<f32>,
@@ -14,6 +15,7 @@ pub struct Message {
 impl Message {
     pub fn default() -> Message {
         Message {
+            position_updated: false,
             position: Vector3::new(0.0, 0.0, 0.0),
             acceleration: Vector3::new(0.0, 0.0, 0.0),
             direction: Vector3::new(0.0, 0.0, 0.0),
@@ -42,6 +44,7 @@ impl Message {
                     splitted[1].parse::<f32>().unwrap(), 
                     splitted[2].parse::<f32>().unwrap(), 
                     splitted[3].parse::<f32>().unwrap());
+                msg.position_updated = true;
             } else if buf.contains("ACCELERATION") {
                 msg.acceleration = Vector3::new(
                     splitted[1].parse::<f32>().unwrap(), 
