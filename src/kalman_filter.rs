@@ -39,7 +39,7 @@ impl KalmanFilter {
         self.acceleration_history.push(message.acceleration);
 
         self.velocity += Rotation3::from_euler_angles(message.direction.x, message.direction.y, message.direction.z) * message.acceleration * 0.01;
-        // if message.position_updated { self.position = message.position; }
+        if message.position_updated { self.position = message.position; }
         self.position += self.velocity * 0.01;
     }
 
