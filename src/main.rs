@@ -28,13 +28,16 @@ fn main() {
 
     // Receive a response from the server
     let mut i = 0;
-    while i < 100000 {
+    while i < 10 {
         let message = message::Message::from_socket(&socket);
 
-        if i == 0 { filter.setup(message, &socket); }
+        if i == 0 { filter.setup(message); }
         else { filter.update(message); }
         
         filter.send(&socket);
+
+        println!("{}", filter.fmt());
+
         i += 1;
     }
 }
