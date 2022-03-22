@@ -6,6 +6,9 @@ mod message;
 mod kalman_filter;
 
 fn main() {
+    // X-Axis data
+    let mut datas: Vec::<(Vec<f64>, Vec<f64>)> = Vec::<(Vec<f64>, Vec<f64>)>::new();
+
     // Extract the port from the command line arguments
     let args: Vec<String> = env::args().collect();
     if args.len() != 2 {
@@ -27,14 +30,30 @@ fn main() {
     let mut filter = kalman_filter::KalmanFilter::default();
 
     // Receive a response from the server
-    let mut i = 0;
-    while i < 100000 {
+    let mut i = 0.0;
+    let mut j = 0;
+
+    let mut position_x: Vec::<f64> = Vec::<f64>::new();
+    let mut position_y: Vec::<f64> = Vec::<f64>::new();
+    let mut position_z: Vec::<f64> = Vec::<f64>::new();
+
+    while j < 500 {
+        // println!("I = {}", i);
         let message = message::Message::from_socket(&socket);
 
-        if i == 0 { filter.setup(message, &socket); }
+        if i == 0.0 { filter.setup(message); }
         else { filter.update(message); }
         
         filter.send(&socket);
-        i += 1;
+
+        println!("{}", filter.position.x);
+        position_x.push(filter.position.x as f64);
+        position_y.push(filter.position.y as f64);
+        position_z.push(filter.position.z as f64);
+        i += 0.01;
+        j += 1;
+        println!("{}", i);
     }
+    datas.push((position_x.clone(), position_y.clone()));
+    utils::plot("graph.png", datas);
 }
