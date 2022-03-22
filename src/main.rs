@@ -1,17 +1,16 @@
 use std::net::UdpSocket;
 use std::env;
 
+use crate::utils::send_location;
+
 mod utils;
 mod message;
 mod kalman_filter;
 
 fn main() {
-    // X-Axis data
-    let mut datas: Vec::<(Vec<f64>, Vec<f64>)> = Vec::<(Vec<f64>, Vec<f64>)>::new();
-
     // Extract the port from the command line arguments
     let args: Vec<String> = env::args().collect();
-    if args.len() != 2 {
+    if args.len() < 2 {
         println!("Usage: {} <port>", args[0]);
         return;
     }
@@ -30,30 +29,19 @@ fn main() {
     let mut filter = kalman_filter::KalmanFilter::default();
 
     // Receive a response from the server
-    let mut i = 0.0;
     let mut j = 0;
 
-    let mut position_x: Vec::<f64> = Vec::<f64>::new();
-    let mut position_y: Vec::<f64> = Vec::<f64>::new();
-    let mut position_z: Vec::<f64> = Vec::<f64>::new();
-
-    while j < 500 {
-        // println!("I = {}", i);
-        let message = message::Message::from_socket(&socket);
-
-        if i == 0.0 { filter.setup(message); }
-        else { filter.update(message); }
-        
-        filter.send(&socket);
-
-        println!("{}", filter.position.x);
-        position_x.push(filter.position.x as f64);
-        position_y.push(filter.position.y as f64);
-        position_z.push(filter.position.z as f64);
-        i += 0.01;
-        j += 1;
-        println!("{}", i);
+    unsafe {
+        while j < args[2].parse::<u16>().unwrap() {
+            println!("{}", j);
+            let message = message::Message::from_socket(&socket);
+            if j == 0 { filter.setup(&message); }
+            else { filter.update(&message); }
+            filter.send(&socket);
+            // send_location(message.position, &socket);
+            println!("{}", filter.position);
+            j += 1;
+        }
+        utils::plot_splitted("splitted.png");
     }
-    datas.push((position_x.clone(), position_y.clone()));
-    utils::plot("graph.png", datas);
 }

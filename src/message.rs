@@ -4,6 +4,16 @@ use nalgebra::{
     Vector3
 };
 
+pub static mut HISTORY_POSITION_X: Vec<f64> = Vec::<f64>::new();
+pub static mut HISTORY_POSITION_Y: Vec<f64> = Vec::<f64>::new();
+pub static mut HISTORY_POSITION_Z: Vec<f64> = Vec::<f64>::new();
+pub static mut HISTORY_ACCELERATION_X: Vec<f64> = Vec::<f64>::new();
+pub static mut HISTORY_ACCELERATION_Y: Vec<f64> = Vec::<f64>::new();
+pub static mut HISTORY_ACCELERATION_Z: Vec<f64> = Vec::<f64>::new();
+pub static mut HISTORY_DIRECTION_X: Vec<f64> = Vec::<f64>::new();
+pub static mut HISTORY_DIRECTION_Y: Vec<f64> = Vec::<f64>::new();
+pub static mut HISTORY_DIRECTION_Z: Vec<f64> = Vec::<f64>::new();
+
 pub struct Message {
     pub position_updated: bool,
     pub position: Vector3<f32>,
@@ -23,6 +33,7 @@ impl Message {
         }
     }
 
+    #[allow(dead_code)]
     pub fn fmt(&self) -> String {
         format!("P(x,y,z) = {} A(x,y,z) = {} D(x,y,z) = {} S = {}",
             self.position,
@@ -32,7 +43,7 @@ impl Message {
         )
     }
 
-    pub fn from_socket(socket: &UdpSocket) -> Message {
+    pub unsafe fn from_socket(socket: &UdpSocket) -> Message {
         let mut msg = Message::default();
         let mut buf: String = recv_message(socket);
 
@@ -44,17 +55,26 @@ impl Message {
                     splitted[1].parse::<f32>().unwrap(), 
                     splitted[2].parse::<f32>().unwrap(), 
                     splitted[3].parse::<f32>().unwrap());
+                HISTORY_POSITION_X.push(msg.position.x as f64);
+                HISTORY_POSITION_Y.push(msg.position.y as f64);
+                HISTORY_POSITION_Z.push(msg.position.z as f64);
                 msg.position_updated = true;
             } else if buf.contains("ACCELERATION") {
                 msg.acceleration = Vector3::new(
                     splitted[1].parse::<f32>().unwrap(), 
                     splitted[2].parse::<f32>().unwrap(),
                     splitted[3].parse::<f32>().unwrap());
+                HISTORY_ACCELERATION_X.push(msg.acceleration.x as f64);
+                HISTORY_ACCELERATION_Y.push(msg.acceleration.y as f64);
+                HISTORY_ACCELERATION_Z.push(msg.acceleration.z as f64);
             } else if buf.contains("DIRECTION") {
                 msg.direction = Vector3::new(
                     splitted[1].parse::<f32>().unwrap(), 
                     splitted[2].parse::<f32>().unwrap(), 
                     splitted[3].parse::<f32>().unwrap());
+                HISTORY_DIRECTION_X.push(msg.direction.x as f64);
+                HISTORY_DIRECTION_Y.push(msg.direction.y as f64);
+                HISTORY_DIRECTION_Z.push(msg.direction.z as f64);
             } else if buf.contains("SPEED") {
                 msg.initial_speed = splitted[1].parse::<f32>().unwrap();
             }
