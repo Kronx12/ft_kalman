@@ -2,20 +2,11 @@ use std::net::UdpSocket;
 use nalgebra::Vector3;
 use plotters::{prelude::*,coord::*};
 use rand::Rng;
+use simple_matrix::Matrix;
+use std::fmt::Display;
 
 use crate::message::*;
 use crate::kalman_filter::*;
-
-// pub fn distrub_plot(base_path: &str, datas: Vec<(Vec<f64>, Vec<f64>)>) {
-//     let mut j = 0;
-//     for i in datas {
-//         let mut v: Vec<(Vec<f64>, Vec<f64>)> = Vec::<(Vec<f64>, Vec<f64>)>::new();
-//         v.push(i);
-//         let path = format!("{}_{}.png", base_path, j);
-//         plot(&path , v);
-//         j += 1;
-//     }
-// }
 
 pub fn plot_on_root(root: DrawingArea<BitMapBackend, Shift>, x: Vec<f64>, y: Vec<f64>, label: &str) {
     root.fill(&WHITE).unwrap();
@@ -43,11 +34,6 @@ pub fn plot_on_root(root: DrawingArea<BitMapBackend, Shift>, x: Vec<f64>, y: Vec
         .draw()
         .unwrap();
 }
-
-// pub fn plot(path: &str, datas: Vec<(Vec<f64>, Vec<f64>)>) {
-//     let root_area = BitMapBackend::new(path, (1280, 1280)).into_drawing_area();
-//     plot_on_root(root_area, datas);
-// }
 
 pub fn plot3d(root: DrawingArea<BitMapBackend, Shift>, x: Vec<f64>, y: Vec<f64>, z: Vec<f64>) {
     root.fill(&WHITE).unwrap();
@@ -106,8 +92,37 @@ pub fn recv_message(socket: &UdpSocket) -> String {
     return response;
 }
 
-pub fn send_location(v: Vector3<f32>, socket: &UdpSocket) {
+pub fn send_location(v: Vector3<f64>, socket: &UdpSocket) {
     let msg = format!("{} {} {}", v[0], v[1], v[2]);
     // println!("SEND LOCATION : {}", msg);
     socket.send(msg.as_bytes()).expect("couldn't send message");
+}
+
+pub fn debug_matrix<T: Display>(m: &Matrix<T>) {
+    let mut lines: Vec<String> = Vec::new();
+
+    // get max number of digits
+    let mut max_digits: usize = 0;
+    for i in 0..m.rows() {
+        for j in 0..m.cols() {
+            let digits = m.get(i, j).unwrap().to_string().len();
+            if digits > max_digits {
+                max_digits = digits;
+            }
+        }
+    }
+    for x in 0..m.rows() {
+        let mut line = "│".to_string();
+        for y in 0..m.cols() {
+            line = format!("{} {:w$}", line, m.get(x, y).unwrap(), w = max_digits);
+        }
+        line = format!("{} │", line);
+        lines.push(line);
+    }
+    let width = lines[0].chars().count() - 2;
+    println!("┌{:w$}┐", "", w = width);
+    for i in lines.iter() {
+        println!("{}", i);
+    }
+    println!("└{:w$}┘", "", w = width);
 }

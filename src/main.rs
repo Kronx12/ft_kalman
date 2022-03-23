@@ -11,7 +11,7 @@ fn main() {
     // Extract the port from the command line arguments
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
-        println!("Usage: {} <port>", args[0]);
+        println!("Usage: {} <port> [iterations]", args[0]);
         return;
     }
     let server_address = format!("127.0.0.1:{}", args[1].parse::<u16>().unwrap());
@@ -30,9 +30,9 @@ fn main() {
 
     // Receive a response from the server
     let mut j = 0;
-
+    let iterations = if args.len() > 2 { args[2].parse::<u32>().unwrap() } else { 1000 };
     unsafe {
-        while j < args[2].parse::<u16>().unwrap() {
+        while j < iterations {
             println!("{}", j);
             let message = message::Message::from_socket(&socket);
             if j == 0 { filter.setup(&message); }
@@ -42,6 +42,7 @@ fn main() {
             println!("{}", filter.position);
             j += 1;
         }
+        filter.debug();
         utils::plot_splitted("splitted.png");
     }
 }

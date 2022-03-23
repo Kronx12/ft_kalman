@@ -1,4 +1,7 @@
-use crate::utils::send_location;
+use crate::utils::{
+    send_location,
+    debug_matrix,
+};
 use crate::message::Message;
 
 use std::net::UdpSocket;
@@ -6,14 +9,19 @@ use nalgebra::{
     Vector3,
     Rotation3,
 };
+use simple_matrix::Matrix;
 
 pub static mut HISTORY_FILTER_X: Vec<f64> = Vec::<f64>::new();
 pub static mut HISTORY_FILTER_Y: Vec<f64> = Vec::<f64>::new();
 pub static mut HISTORY_FILTER_Z: Vec<f64> = Vec::<f64>::new();
 
 pub struct KalmanFilter {
-    pub position: Vector3<f32>,
-    pub velocity: Vector3<f32>,
+    pub position: Vector3<f64>,
+    pub velocity: Vector3<f64>,
+
+    pub initial_x: Matrix<f64>,
+    pub initial_p: Matrix<f64>,
+
     pub i: i64,
 }
 
@@ -22,6 +30,9 @@ impl KalmanFilter {
         KalmanFilter {
             position: Vector3::new(0.0, 0.0, 0.0),
             velocity: Vector3::new(0.0, 0.0, 0.0),
+
+            initial_x: Matrix::<f64>::new(9, 1),
+            initial_p: Matrix::<f64>::new(9, 1),
             i: 0,
         }
     }
@@ -41,9 +52,9 @@ impl KalmanFilter {
     }
 
     pub unsafe fn save(&mut self) {
-        HISTORY_FILTER_X.push(self.position.x as f64);
-        HISTORY_FILTER_Y.push(self.position.y as f64);
-        HISTORY_FILTER_Z.push(self.position.z as f64);
+        HISTORY_FILTER_X.push(self.position.x);
+        HISTORY_FILTER_Y.push(self.position.y);
+        HISTORY_FILTER_Z.push(self.position.z);
     }
 
     // pub fn init(&mut self) {
@@ -69,5 +80,10 @@ impl KalmanFilter {
     #[allow(dead_code)]
     pub fn send(&mut self, socket: &UdpSocket) {
         send_location(self.position, socket);
+    }
+
+    pub fn debug(&self) {
+        debug_matrix(&self.initial_x);
+        debug_matrix(&self.initial_p);
     }
 }
