@@ -98,6 +98,7 @@ pub fn send_location(v: Vector3<f64>, socket: &UdpSocket) {
     socket.send(msg.as_bytes()).expect("couldn't send message");
 }
 
+#[allow(dead_code)]
 pub fn debug_matrix<T: Display>(m: &Matrix<T>) {
     let mut lines: Vec<String> = Vec::new();
 
@@ -125,4 +126,100 @@ pub fn debug_matrix<T: Display>(m: &Matrix<T>) {
         println!("{}", i);
     }
     println!("└{:w$}┘", "", w = width);
+}
+
+pub fn identity(size: usize) -> Matrix<f64> {
+    let mut m = Matrix::<f64>::new(size, size);
+    for i in 0..size {
+        m.set(i, i, 1.);
+    }
+    return m;
+}
+
+pub fn zeros(size: (usize, usize)) -> Matrix<f64> {
+    let mut m = Matrix::<f64>::new(size.0, size.1);
+    for i in 0..size.0 {
+        for j in 0..size.1 {
+            m.set(i, j, 0.);
+        }
+    }
+    return m;
+}
+
+pub fn mul_by_scalar(m: &Matrix<f64>, s: f64) -> Matrix<f64> {
+    let mut result = Matrix::<f64>::new(m.rows(), m.cols());
+    for i in 0..m.rows() {
+        for j in 0..m.cols() {
+            result.set(i, j, m.get(i, j).unwrap() * s);
+        }
+    }
+    return result;
+}
+
+// Calculate a inverse of a matrix
+pub fn inverse(m: &Matrix<f64>) -> Matrix<f64> {
+    // Only on square matrix
+    let identity = identity(m.rows());
+    let mut merge = Matrix::<f64>::new(m.rows(), m.cols() * 2);
+    for i in 0..m.rows() {
+        for j in 0..m.cols() {
+            merge.set(i, j, *m.get(i, j).unwrap());
+            merge.set(i, j + m.cols(), *identity.get(i, j).unwrap());
+        }
+    }
+    // Apply reduced row echelon form
+    let rref_matrix = rref(&merge);
+    // Extract the inverse
+    let mut inverse = Matrix::<f64>::new(m.rows(), m.cols());
+    for i in 0..m.rows() {
+        for j in 0..m.cols() {
+            inverse.set(i, j, *rref_matrix.get(i, j + m.cols()).unwrap());
+        }
+    }
+    return inverse;
+}
+
+pub fn rref(m: &Matrix<f64>) -> Matrix<f64> {
+    let mut result = Matrix::<f64>::new(m.rows(), m.cols());
+    for i in 0..m.rows() {
+        for j in 0..m.cols() {
+            result.set(i, j, *m.get(i, j).unwrap());
+        }
+    }
+    let mut pivot = 0;
+    for i in 0..m.rows() {
+        // Find the pivot
+        let mut pivot_value = *result.get(i, pivot).unwrap();
+        let mut pivot_row = i;
+        for j in i..m.rows() {
+            if pivot_value.abs() < result.get(j, pivot).unwrap().abs() {
+                pivot_value = *result.get(j, pivot).unwrap();
+                pivot_row = j;
+            }
+        }
+
+        // Swap rows
+        if pivot_row != i {
+            for j in 0..m.cols() {
+                let tmp = *result.get(i, j).unwrap();
+                result.set(i, j, *result.get(pivot_row, j).unwrap());
+                result.set(pivot_row, j, tmp);
+            }
+        }
+        // Divide by pivot
+        if pivot_value != 0. {
+            for j in 0..m.cols() {
+                result.set(i, j, result.get(i, j).unwrap() / pivot_value);
+            }
+        }
+        // Subtract from rows below
+        for j in i + 1..m.rows() {
+            let factor = *result.get(j, pivot).unwrap();
+            for k in 0..m.cols() {
+                result.set(j, k, result.get(j, k).unwrap() - factor * result.get(i, k).unwrap());
+            }
+        }
+        pivot += 1;
+    }
+    return result;
 }

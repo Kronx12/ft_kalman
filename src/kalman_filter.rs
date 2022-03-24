@@ -1,13 +1,8 @@
 use crate::utils::{
-    send_location,
-    debug_matrix,
-};
-use crate::message::Message;
-
-use std::net::UdpSocket;
-use nalgebra::{
-    Vector3,
-    Rotation3,
+    identity,
+    zeros,
+    mul_by_scalar,
+    inverse, debug_matrix,
 };
 use simple_matrix::Matrix;
 
@@ -16,74 +11,81 @@ pub static mut HISTORY_FILTER_Y: Vec<f64> = Vec::<f64>::new();
 pub static mut HISTORY_FILTER_Z: Vec<f64> = Vec::<f64>::new();
 
 pub struct KalmanFilter {
-    pub position: Vector3<f64>,
-    pub velocity: Vector3<f64>,
+    pub n: usize,
+    pub m: usize,
 
-    pub initial_x: Matrix<f64>,
-    pub initial_p: Matrix<f64>,
 
-    pub i: i64,
+    pub f: Matrix<f64>,
+    pub h: Matrix<f64>,
+    pub b: Matrix<f64>,
+    pub q: Matrix<f64>,
+    pub r: Matrix<f64>,
+    pub p: Matrix<f64>,
+
+    pub x: Matrix<f64>,
 }
 
 impl KalmanFilter {
     pub fn default() -> KalmanFilter {
         KalmanFilter {
-            position: Vector3::new(0.0, 0.0, 0.0),
-            velocity: Vector3::new(0.0, 0.0, 0.0),
-
-            initial_x: Matrix::<f64>::new(9, 1),
-            initial_p: Matrix::<f64>::new(9, 1),
-            i: 0,
+            n: 9,
+            m: 1,
+            f: identity(9),
+            h: identity(1),
+            b: zeros((9, 1)),
+            q: identity(9),
+            r: identity(1),
+            p: identity(9),
+            x: zeros((9, 1)),
         }
     }
 
-    pub fn setup(&mut self, message: &Message) {
-        self.position = message.position;
-        self.velocity = Vector3::new(message.initial_speed / 3.6, 0.0, 0.0) +  Rotation3::from_euler_angles(message.direction.x, message.direction.y, message.direction.z) * message.acceleration * 0.01;
-        unsafe { self.save(); }
+    pub fn new( val_f: Matrix<f64>, val_b: Option<Matrix<f64>>, val_h: Matrix<f64>, val_q: Option<Matrix<f64>>, val_r: Option<Matrix<f64>>, val_p: Option<Matrix<f64>>, x0: Option<Matrix<f64>>) -> KalmanFilter {
+        let mut kf = KalmanFilter::default();
+        kf.n = val_f.rows();
+        kf.m = val_h.cols();
+        
+        kf.f = val_f;
+        kf.h = val_h;
+
+        kf.b = val_b.unwrap_or(zeros((kf.n, 1)));
+        kf.q = val_q.unwrap_or(identity(kf.n));
+        kf.r = val_r.unwrap_or(identity(kf.m));
+        kf.p = val_p.unwrap_or(identity(kf.n));
+
+        kf.x = x0.unwrap_or(zeros((kf.n, 1)));
+
+        return kf;
     }
 
-    pub fn update(&mut self, message: &Message) {
-        self.velocity += Rotation3::from_euler_angles(message.direction.x, message.direction.y, message.direction.z) * message.acceleration * 0.01;
-        if message.position_updated && self.i % 300 == 0 { self.position = message.position; }
-        self.position += self.velocity * 0.01;
-        unsafe { self.save(); }
-        self.i += 1;
+    pub fn set_state(&mut self, x: Matrix<f64>) {
+        self.x = x;
     }
 
-    pub unsafe fn save(&mut self) {
-        HISTORY_FILTER_X.push(self.position.x);
-        HISTORY_FILTER_Y.push(self.position.y);
-        HISTORY_FILTER_Z.push(self.position.z);
+    pub fn predict(&mut self, u: Option<f64>) -> Matrix<f64> {
+        // println!("Before");
+        // debug_matrix(&self.x);
+        self.x = self.f.clone() * self.x.clone() + mul_by_scalar(&self.b, u.unwrap_or(0.));
+        // println!("After");
+        // debug_matrix(&self.x);
+        self.p = self.f.clone() * self.p.clone() * self.f.transpose() + self.q.clone();
+
+        unsafe {
+            HISTORY_FILTER_X.push(*self.x.get(0, 0).unwrap());
+            HISTORY_FILTER_Y.push(*self.x.get(1, 0).unwrap());
+            HISTORY_FILTER_Z.push(*self.x.get(2, 0).unwrap());
+        }
+
+        return self.x.clone();
     }
 
-    // pub fn init(&mut self) {
-    // }
-
-    // pub fn predict(&mut self) {
-
-    // }
-
-    // pub fn compute_gain(&mut self) {
-
-    // }
-
-    // pub fn compute_estimation(&mut self) {
-
-    //     // Update position and velocity with estimations
-    // }
-
-    // pub fn compute_covariance_error(&mut self) {
-
-    // }
-
-    #[allow(dead_code)]
-    pub fn send(&mut self, socket: &UdpSocket) {
-        send_location(self.position, socket);
-    }
-
-    pub fn debug(&self) {
-        debug_matrix(&self.initial_x);
-        debug_matrix(&self.initial_p);
+    pub fn update(&mut self, z: Matrix<f64>) -> Matrix<f64> {
+        let y = z - self.h.clone() * self.x.clone();
+        let s = self.h.clone() * self.p.clone() * self.h.transpose() + self.r.clone();
+        let k = self.p.clone() * self.h.transpose() * inverse(&s);
+        self.x = self.x.clone() + k.clone() * y;
+        let i = identity(self.n);
+        self.p = (i.clone() - k.clone() * self.h.clone()) * self.p.clone() * (i.clone() - k.clone() * self.h.clone()).transpose() + k.clone() * self.r.clone() * k.transpose();
+        return self.x.clone();
     }
 }

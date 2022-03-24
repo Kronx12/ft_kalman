@@ -7,12 +7,6 @@ use nalgebra::{
 pub static mut HISTORY_POSITION_X: Vec<f64> = Vec::<f64>::new();
 pub static mut HISTORY_POSITION_Y: Vec<f64> = Vec::<f64>::new();
 pub static mut HISTORY_POSITION_Z: Vec<f64> = Vec::<f64>::new();
-pub static mut HISTORY_ACCELERATION_X: Vec<f64> = Vec::<f64>::new();
-pub static mut HISTORY_ACCELERATION_Y: Vec<f64> = Vec::<f64>::new();
-pub static mut HISTORY_ACCELERATION_Z: Vec<f64> = Vec::<f64>::new();
-pub static mut HISTORY_DIRECTION_X: Vec<f64> = Vec::<f64>::new();
-pub static mut HISTORY_DIRECTION_Y: Vec<f64> = Vec::<f64>::new();
-pub static mut HISTORY_DIRECTION_Z: Vec<f64> = Vec::<f64>::new();
 
 pub struct Message {
     pub position_updated: bool,
@@ -64,17 +58,11 @@ impl Message {
                     splitted[1].parse::<f64>().unwrap(), 
                     splitted[2].parse::<f64>().unwrap(),
                     splitted[3].parse::<f64>().unwrap());
-                HISTORY_ACCELERATION_X.push(msg.acceleration.x as f64);
-                HISTORY_ACCELERATION_Y.push(msg.acceleration.y as f64);
-                HISTORY_ACCELERATION_Z.push(msg.acceleration.z as f64);
             } else if buf.contains("DIRECTION") {
                 msg.direction = Vector3::new(
                     splitted[1].parse::<f64>().unwrap(), 
                     splitted[2].parse::<f64>().unwrap(), 
                     splitted[3].parse::<f64>().unwrap());
-                HISTORY_DIRECTION_X.push(msg.direction.x as f64);
-                HISTORY_DIRECTION_Y.push(msg.direction.y as f64);
-                HISTORY_DIRECTION_Z.push(msg.direction.z as f64);
             } else if buf.contains("SPEED") {
                 msg.initial_speed = splitted[1].parse::<f64>().unwrap();
             }
