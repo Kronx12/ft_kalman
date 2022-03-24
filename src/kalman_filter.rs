@@ -10,6 +10,10 @@ pub static mut HISTORY_FILTER_X: Vec<f64> = Vec::<f64>::new();
 pub static mut HISTORY_FILTER_Y: Vec<f64> = Vec::<f64>::new();
 pub static mut HISTORY_FILTER_Z: Vec<f64> = Vec::<f64>::new();
 
+pub static mut HISTORY_WITHOUT_FILTER_X: Vec<f64> = Vec::<f64>::new();
+pub static mut HISTORY_WITHOUT_FILTER_Y: Vec<f64> = Vec::<f64>::new();
+pub static mut HISTORY_WITHOUT_FILTER_Z: Vec<f64> = Vec::<f64>::new();
+
 pub struct KalmanFilter {
     pub n: usize,
     pub m: usize,
@@ -80,12 +84,19 @@ impl KalmanFilter {
     }
 
     pub fn update(&mut self, z: Matrix<f64>) -> Matrix<f64> {
-        let y = z - self.h.clone() * self.x.clone();
+        let y = z.clone() - self.h.clone() * self.x.clone();
         let s = self.h.clone() * self.p.clone() * self.h.transpose() + self.r.clone();
         let k = self.p.clone() * self.h.transpose() * inverse(&s);
         self.x = self.x.clone() + k.clone() * y;
         let i = identity(self.n);
         self.p = (i.clone() - k.clone() * self.h.clone()) * self.p.clone() * (i.clone() - k.clone() * self.h.clone()).transpose() + k.clone() * self.r.clone() * k.transpose();
+
+        unsafe {
+            HISTORY_WITHOUT_FILTER_X.push(*z.get(0, 0).unwrap() + *z.get(3, 0).unwrap() * 0.01);
+            HISTORY_WITHOUT_FILTER_Y.push(*z.get(1, 0).unwrap() + *z.get(4, 0).unwrap() * 0.01);
+            HISTORY_WITHOUT_FILTER_Z.push(*z.get(2, 0).unwrap() + *z.get(5, 0).unwrap() * 0.01);
+        }
+
         return self.x.clone();
     }
 }

@@ -109,6 +109,8 @@ fn main() {
 
             i += 1;
         }
+
+        // Show trajectory
         i = 0;
         let mut y: Vec<f64> = Vec::new();
         while i < kalman_filter::HISTORY_FILTER_X.len() as u32 {
@@ -117,10 +119,13 @@ fn main() {
         }
         println!("{} {}", i as f64 * 0.01, kalman_filter::HISTORY_FILTER_X.last().unwrap());
         utils::plot("x_t.png", kalman_filter::HISTORY_FILTER_X.clone(), y.clone());
+        utils::plot("x_t_without.png", kalman_filter::HISTORY_WITHOUT_FILTER_X.clone(), y.clone());
         utils::plot("real_x_t.png", message::HISTORY_POSITION_X.clone(), y.clone());
         utils::plot("y_t.png", kalman_filter::HISTORY_FILTER_Y.clone(), y.clone());
+        utils::plot("y_t_without.png", kalman_filter::HISTORY_WITHOUT_FILTER_Y.clone(), y.clone());
         utils::plot("real_y_t.png", message::HISTORY_POSITION_Y.clone(), y.clone());
         utils::plot("z_t.png", kalman_filter::HISTORY_FILTER_Z.clone(), y.clone());
+        utils::plot("z_t_without.png", kalman_filter::HISTORY_WITHOUT_FILTER_Z.clone(), y.clone());
         utils::plot("real_z_t.png", message::HISTORY_POSITION_Z.clone(), y.clone());
         utils::plot_splitted("splitted.png");
     }
