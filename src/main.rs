@@ -36,7 +36,6 @@ fn main() {
     f.set(2, 5, dt);
 
     // Matrice de transition
-    // TODO ICI C'est la merde en fait !
     let mut h = identity(6);
     h.set(3, 3, 1.);
     h.set(4, 4, 1.);
@@ -82,7 +81,6 @@ fn main() {
 
             // Set measurement
             let mut measurement = zeros((6, 1));
-
             measurement.set(0, 0, position.x);
             measurement.set(1, 0, position.y);
             measurement.set(2, 0, position.z);
@@ -100,16 +98,30 @@ fn main() {
             }
             
             // Send location
+            send_location(message.position, &socket);
             if i % 300 == 0 {
                 println!("({}) => Prediction: {:?}", i, position);
-                send_location(position, &socket);
+                // send_location(position, &socket);
             } else {
                 println!("({}) => Prediction: {:?}", i, result);
-                send_location(result, &socket);
+                // send_location(result, &socket);
             }
 
             i += 1;
         }
+        i = 0;
+        let mut y: Vec<f64> = Vec::new();
+        while i < kalman_filter::HISTORY_FILTER_X.len() as u32 {
+            y.push(i as f64 * 0.01);
+            i += 1;
+        }
+        println!("{} {}", i as f64 * 0.01, kalman_filter::HISTORY_FILTER_X.last().unwrap());
+        utils::plot("x_t.png", kalman_filter::HISTORY_FILTER_X.clone(), y.clone());
+        utils::plot("real_x_t.png", message::HISTORY_POSITION_X.clone(), y.clone());
+        utils::plot("y_t.png", kalman_filter::HISTORY_FILTER_Y.clone(), y.clone());
+        utils::plot("real_y_t.png", message::HISTORY_POSITION_Y.clone(), y.clone());
+        utils::plot("z_t.png", kalman_filter::HISTORY_FILTER_Z.clone(), y.clone());
+        utils::plot("real_z_t.png", message::HISTORY_POSITION_Z.clone(), y.clone());
         utils::plot_splitted("splitted.png");
     }
 }

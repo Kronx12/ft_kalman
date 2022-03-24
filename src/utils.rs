@@ -68,6 +68,12 @@ pub fn plot3d(root: DrawingArea<BitMapBackend, Shift>, x: Vec<f64>, y: Vec<f64>,
     )).unwrap();
 }
 
+pub fn plot(path: &str, x: Vec<f64>, y: Vec<f64>) {
+    let root = BitMapBackend::new(path, (2000, 1000)).into_drawing_area();
+
+    plot_on_root(root, x, y, path)
+}
+
 pub unsafe fn plot_splitted(path: &str) {
     let root = BitMapBackend::new(path, (2000, 1000)).into_drawing_area();
     
